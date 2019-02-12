@@ -1,0 +1,8 @@
+{
+    "files.exclude": {
+        "node_modules/**": true,
+        "dist/**": true,
+        "*-lock.json/**": true,
+        "LICENSE": true
+    }
+}

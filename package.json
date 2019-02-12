@@ -1,0 +1,42 @@
+{
+    "name": "react-vrm",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "start": "webpack --mode=development",
+        "watch": "webpack -w --mode=development",
+        "type-check": "tsc --noEmit",
+        "type-check:watch": "npm run type-check -- --watch",
+        "build": "npm run build:types && npm run build:js",
+        "build:types": "tsc --emitDeclarationOnly",
+        "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/TakenokoTech/react-vrm.git"
+    },
+    "author": "",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/TakenokoTech/react-vrm/issues"
+    },
+    "homepage": "https://github.com/TakenokoTech/react-vrm#readme",
+    "devDependencies": {
+        "@babel/cli": "^7.2.0",
+        "@babel/core": "^7.2.0",
+        "@babel/plugin-proposal-class-properties": "^7.2.1",
+        "@babel/plugin-proposal-object-rest-spread": "^7.2.0",
+        "@babel/preset-env": "^7.2.0",
+        "@babel/preset-typescript": "^7.1.0",
+        "babel-loader": "^8.0.4",
+        "typescript": "^3.2.2",
+        "webpack": "^4.29.3",
+        "webpack-cli": "^3.2.3"
+    },
+    "dependencies": {
+        "@types/three": "^0.93.19",
+        "three": "^0.101.1",
+        "three-gltf-loader": "^1.101.0"
+    }
+}
