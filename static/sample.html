@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+
+<head>
+	<title>WebVRM</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<style>
+		body {
+			font-family: Monospace;
+			background-color: rgba(100, 100, 100);
+			color: #fff;
+			margin: 0px;
+			overflow: hidden;
+		}
+
+		#debugWindow {
+			z-index: 200;
+			position: absolute;
+			max-width: 250px;
+			width: 50%;
+			top: 0px;
+			right: 0px;
+			background-color: rgba(0, 0, 0, 0.5);
+			padding: 10px;
+			/* display: none; */
+			/* max-height: 25vh; */
+		}
+
+		.row {
+			margin: 10px 0px 10px;
+
+		}
+	</style>
+</head>
+
+<body>
+
+	<div id="threeCanvas" style="z-index: 2;position: absolute;"></div>
+
+	<div id="debugWindow">
+		<div>Debug Window</div>
+		<div class="row">
+			<select id="boneSelector" onchange="">
+				<option value="default">ボーンの角度</option>
+			</select>
+		</div>
+		<input id="boneX" type="range" value=0 min=-180 max=180 oninput="changeBoneAngle('x', this.value)">
+		<input id="boneY" type="range" value=0 min=-180 max=180 oninput="changeBoneAngle('y', this.value)">
+		<input id="boneZ" type="range" value=0 min=-180 max=180 oninput="changeBoneAngle('z', this.value)">
+
+		<div class="row">
+			<select id="expressionSelector">
+				<option value="default">表情ブレンドシェイプ</option>
+			</select>
+		</div>
+		<input id="expressionValue" type="range" value=0 min=0 max=100 oninput="changeExpression(this.value)">
+
+		<div id="faceData"></div>
+	</div>
+	<script src="../dist/sample.bundle.js" />
+</body>
+
+
+</html>

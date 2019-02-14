@@ -1,6 +1,10 @@
 import * as THREE from "three";
+import { GLTF, Scene, AnimationClip } from "three";
 import GLTFLoader from "three-gltf-loader";
 import OrbitControls from "three-orbitcontrols";
+import { VRM, VRMLoader } from "three-vrm";
+import { Vrm } from "../schema/vrm.schema";
+import { VrmMaterial } from "../schema/vrm.material.schema";
 
 // 幅、高さ取得
 const width = window.innerWidth;
@@ -37,20 +41,78 @@ controls.autoRotateSpeed = 1.0;
 // sphere.position.set(0, 1, 0);
 // scene.add(grid, sphere);
 
-new GLTFLoader().load("model/panda.gltf", data => {
-    const gltf = data;
-    const object = gltf.scene;
-    const animations = gltf.animations;
-
-    if (animations && animations.length) {
-        mixer = new THREE.AnimationMixer(object);
-        for (let anim of animations) {
-            mixer.clipAction(anim).play();
+const pandaGltf = () => {
+    new GLTFLoader().load("model/panda.gltf", data => {
+        const gltf = data;
+        const object = gltf.scene;
+        const animations = gltf.animations;
+        if (animations && animations.length) {
+            mixer = new THREE.AnimationMixer(object);
+            for (let anim of animations) {
+                mixer.clipAction(anim).play();
+            }
         }
-    }
+        scene.add(object);
+    });
+};
 
-    scene.add(object);
-});
+const nokoko = () => {
+    new GLTFLoader().load("vrm/nokoko.vrm", data => {
+        const gltf: GLTF = data;
+        const object: Scene = gltf.scene;
+        const animations: AnimationClip[] = gltf.animations;
+        if (animations && animations.length) {
+            mixer = new THREE.AnimationMixer(object);
+            for (let anim of animations) {
+                mixer.clipAction(anim).play();
+            }
+        }
+        const vrm: Vrm = data.userData.gltfExtensions.VRM;
+        const materialProperties = vrm.materialProperties;
+        console.trace(materialProperties);
+        scene.add(object);
+    });
+};
+
+const nokokoVRM = () => {
+    new VRMLoader().load("vrm/nokoko.vrm", function(vrm) {
+        // vrm.scene.traverse(function(object) {
+        //     if (object.material) {
+        //         if (Array.isArray(object.material)) {
+        //             for (var i = 0, il = object.material.length; i < il; i++) {
+        //                 var material = new THREE.MeshBasicMaterial();
+        //                 THREE.Material.prototype.copy.call(
+        //                     material,
+        //                     object.material[i]
+        //                 );
+        //                 material.color.copy(object.material[i].color);
+        //                 material.map = object.material[i].map;
+        //                 material.lights = false;
+        //                 material.skinning = object.material[i].skinning;
+        //                 material.morphTargets = object.material[i].morphTargets;
+        //                 material.morphNormals = object.material[i].morphNormals;
+        //                 object.material[i] = material;
+        //             }
+        //         } else {
+        //             var material = new THREE.MeshBasicMaterial();
+        //             THREE.Material.prototype.copy.call(
+        //                 material,
+        //                 object.material
+        //             );
+        //             material.color.copy(object.material.color);
+        //             material.map = object.material.map;
+        //             material.lights = false;
+        //             material.skinning = object.material.skinning;
+        //             material.morphTargets = object.material.morphTargets;
+        //             material.morphNormals = object.material.morphNormals;
+        //             object.material = material;
+        //         }
+        //     }
+        // });
+        scene.add(vrm.scene);
+    });
+};
+nokoko();
 
 // レンダリング
 const animation = () => {
@@ -62,3 +124,5 @@ const animation = () => {
 const clock = new THREE.Clock();
 let mixer: THREE.AnimationMixer;
 animation();
+
+// https://github.com/Keshigom/WebVRM
