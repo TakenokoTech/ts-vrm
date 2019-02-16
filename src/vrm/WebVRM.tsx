@@ -1,15 +1,16 @@
 import * as THREE from "three";
 import { Object3D, Scene, Material } from "three";
-import { VRM, VRMLoader } from "three-vrm";
 import BlendShape from "./BlendShape";
 import Skeleton from "./Skeleton";
+import { Vrm } from "../../schema/UniVRM/vrm.schema";
+import VRMLoader from "./VRMLoader";
 
 /**
  *
  * https://github.com/Keshigom/WebVRM/blob/master/docs/src/WebVRM.js
  */
 export default class WebVRM {
-    private vrm: VRM = new VRM();
+    private vrm: Vrm;
     private skeleton: Skeleton;
     private blendShape: BlendShape;
     private isReady = false;
@@ -60,12 +61,13 @@ export default class WebVRM {
             for (var i = 0, il = object.material.length; i < il; i++) {
                 var material = new THREE.MeshBasicMaterial();
                 THREE.Material.prototype.copy.call(material, object.material[i]);
-                material.color.copy(new THREE.Color(object.material[i].defaultAttributeValues.color[0], object.material[i].defaultAttributeValues.color[1], object.material[i].defaultAttributeValues.color[2]));
+                material.color.copy(new THREE.Color(object.material[i].color[0], object.material[i].color[1], object.material[i].color[2]));
                 material.map = object.material[i].map;
                 material.lights = false;
                 material.skinning = object.material[i].skinning;
                 material.morphTargets = object.material[i].morphTargets;
                 material.morphNormals = object.material[i].morphNormals;
+                console.log(object.material[i]);
                 object.material[i] = material;
             }
         } else {

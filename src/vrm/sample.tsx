@@ -1,10 +1,12 @@
 import * as THREE from "three";
 import GLTFLoader from "three-gltf-loader";
+import Stats from "stats-js";
 import OrbitControls from "three-orbitcontrols";
 import WebVRM from "./WebVRM";
 
 let avatar: WebVRM;
-let stats, controls;
+let stats: Stats;
+let controls: OrbitControls;
 let scene: THREE.Scene;
 let camera: THREE.PerspectiveCamera;
 let renderer: THREE.WebGLRenderer;
@@ -78,11 +80,11 @@ function init(targetCanvas: Element) {
     function update() {
         requestAnimationFrame(update);
         renderer.render(scene, camera);
-        // stats.update();
+        stats.update();
     }
 
     initThree(targetCanvas);
-    // initStats();
+    initStats();
     // addTestObject();
     loadModel(`../../static/vrm/nokoko.vrm`);
     // loadModel(`https://dl.dropboxusercontent.com/s/tiwmoh8te3g5i6b/monoGaku.vrm`);

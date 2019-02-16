@@ -37,9 +37,9 @@
     "dependencies": {
         "@types/three": "^0.93.19",
         "json-schema-to-typescript": "^6.1.1",
+        "stats-js": "^1.0.0",
         "three": "^0.101.1",
         "three-gltf-loader": "^1.101.0",
-        "three-orbitcontrols": "^2.101.1",
-        "three-vrm": "0.0.12"
+        "three-orbitcontrols": "^2.101.1"
     }
 }

@@ -1,7 +1,6 @@
 import { Scene, Object3D, SkinnedMesh, Mesh } from "three";
-import { VrmBlendshape, VrmBlendshapeBind, VrmBlendshapeGroup } from "../../schema/UniVRM/vrm.schema";
+import { VrmBlendshape, VrmBlendshapeBind, VrmBlendshapeGroup, Vrm } from "../../schema/UniVRM/vrm.schema";
 import { GlTFProperty } from "../../schema/glTF/glTF.schema";
-import { VRM, VRMBlendShape, VRMBlendShapeBind } from "three-vrm";
 
 interface BoneReef {
     name: string;
@@ -39,7 +38,7 @@ export default class BlendShape {
     private createShapeMap(scene: Scene, json: GlTFProperty) {
         let shapeMap = new Map();
         if (json.extensions) {
-            const vrm: VRM = json.extensions.VRM as VRM;
+            const vrm: Vrm = json.extensions.VRM as Vrm;
             const blendShapeGroups = vrm.blendShapeMaster.blendShapeGroups;
             for (const blendShapeObj of blendShapeGroups) {
                 if (blendShapeObj.presetName != "unknown") {

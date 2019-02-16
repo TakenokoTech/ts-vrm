@@ -2,9 +2,9 @@ import * as THREE from "three";
 import { GLTF, Scene, AnimationClip } from "three";
 import GLTFLoader from "three-gltf-loader";
 import OrbitControls from "three-orbitcontrols";
-import { VRM, VRMLoader } from "three-vrm";
 import { Vrm } from "../schema/vrm.schema";
 import { VrmMaterial } from "../schema/vrm.material.schema";
+import VRMLoader from "./vrm/VRMLoader";
 
 // 幅、高さ取得
 const width = window.innerWidth;
@@ -59,10 +59,10 @@ const pandaGltf = () => {
 const nokoko = () => {
     new GLTFLoader().load("vrm/nokoko.vrm", data => {
         const gltf: GLTF = data;
-        const object: Scene = gltf.scene;
+        const vrmScene: Scene = gltf.scene;
         const animations: AnimationClip[] = gltf.animations;
         if (animations && animations.length) {
-            mixer = new THREE.AnimationMixer(object);
+            mixer = new THREE.AnimationMixer(vrmScene);
             for (let anim of animations) {
                 mixer.clipAction(anim).play();
             }
@@ -70,7 +70,7 @@ const nokoko = () => {
         const vrm: Vrm = data.userData.gltfExtensions.VRM;
         const materialProperties = vrm.materialProperties;
         console.trace(materialProperties);
-        scene.add(object);
+        scene.add(vrmScene);
     });
 };
 
