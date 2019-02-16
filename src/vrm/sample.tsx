@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import GLTFLoader from "three-gltf-loader";
+import { GLTF, Scene, AnimationClip } from "three";
 import Stats from "stats-js";
 import OrbitControls from "three-orbitcontrols";
 import WebVRM from "./WebVRM";
@@ -72,6 +73,17 @@ function init(targetCanvas: Element) {
                 element.innerHTML = key;
                 expressionSelector && expressionSelector.appendChild(element);
             }
+            // animator
+            // let mixer: THREE.AnimationMixer;
+            // const gltf: GLTF = avatar.vrm;
+            // const animations = gltf.animations;
+            // if (animations && animations.length) {
+            //     console.log("animations.length: ", animations.length);
+            //     mixer = new THREE.AnimationMixer(gltf);
+            //     for (let anim of animations) {
+            //         mixer.clipAction(anim).play();
+            //     }
+            // }
         };
         avatar = new WebVRM(modelURL, scene, callback);
     };
@@ -87,6 +99,7 @@ function init(targetCanvas: Element) {
     initStats();
     // addTestObject();
     loadModel(`../../static/vrm/nokoko.vrm`);
+    // loadModel(`../../static/vrm/panda.vrm`);
     // loadModel(`https://dl.dropboxusercontent.com/s/tiwmoh8te3g5i6b/monoGaku.vrm`);
     update();
 }

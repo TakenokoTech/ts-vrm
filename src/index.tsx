@@ -5,6 +5,9 @@ import OrbitControls from "three-orbitcontrols";
 import { Vrm } from "../schema/vrm.schema";
 import { VrmMaterial } from "../schema/vrm.material.schema";
 import VRMLoader from "./vrm/VRMLoader";
+import FBXLoader from "./loader/FBXLoader";
+import _ from "lodash";
+import born from "../schema/born.json";
 
 // 幅、高さ取得
 const width = window.innerWidth;
@@ -18,8 +21,10 @@ document.body.appendChild(renderer.domElement);
 
 // シーンの作成、カメラの作成と追加、ライトの作成と追加
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(50, width / height, 1, 100);
+let camera = new THREE.PerspectiveCamera(50, width / height, 1, 100);
 camera.position.set(0, 1, 5);
+// const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 2000);
+// camera.position.set(100, 200, 300);
 const light = new THREE.AmbientLight(0xffffff, 1);
 scene.add(light);
 
@@ -32,29 +37,56 @@ controls.maxPolarAngle = Math.PI * 0.495;
 controls.autoRotate = true;
 controls.autoRotateSpeed = 1.0;
 
-// // メッシュの作成と追加
-// const grid = new THREE.GridHelper(10, 5);
-// const sphere = new THREE.Mesh(
-//     new THREE.SphereGeometry(1),
-//     new THREE.MeshPhongMaterial({ color: 0x0074df })
-// );
-// sphere.position.set(0, 1, 0);
+// メッシュの作成と追加
+const grid = new THREE.GridHelper(10, 5);
+const sphere = new THREE.Mesh(new THREE.SphereGeometry(1), new THREE.MeshPhongMaterial({ color: 0x0074df }));
+sphere.position.set(0, 1, 0);
 // scene.add(grid, sphere);
+
+let animeClip: AnimationClip;
+const dancing = () => {
+    new FBXLoader().load(
+        "motion/Samba.fbx",
+        object => {
+            console.log(object);
+            mixer = new THREE.AnimationMixer(object);
+            mixer.clipAction(object.animations[0]).play();
+            object.traverse(child => {
+                if (child.isMesh) (child.castShadow = true), (child.receiveShadow = true);
+            });
+            animeClip = object.animations[0];
+            scene.add(object);
+        },
+        xhr => {
+            console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+        },
+        err => {
+            console.error("An error happened", err);
+        }
+    );
+};
+// dancing();
 
 const pandaGltf = () => {
     new GLTFLoader().load("model/panda.gltf", data => {
+        console.log(object);
         const gltf = data;
         const object = gltf.scene;
-        const animations = gltf.animations;
+        const animations: AnimationClip[] = gltf.animations;
         if (animations && animations.length) {
             mixer = new THREE.AnimationMixer(object);
             for (let anim of animations) {
+                // console.log(JSON.stringify(anim));
                 mixer.clipAction(anim).play();
             }
         }
-        scene.add(object);
+        animeClip = animations[1];
+        // scene.add(object);
+        fixAnimeClip();
+        nokoko();
     });
 };
+pandaGltf();
 
 const nokoko = () => {
     new GLTFLoader().load("vrm/nokoko.vrm", data => {
@@ -67,12 +99,19 @@ const nokoko = () => {
                 mixer.clipAction(anim).play();
             }
         }
-        const vrm: Vrm = data.userData.gltfExtensions.VRM;
+
+        mixer = new THREE.AnimationMixer(vrmScene);
+        if (animeClip) {
+            mixer.clipAction(animeClip).play();
+            gltf.animations = [animeClip];
+        }
+
+        const vrm: Vrm = gltf.userData.gltfExtensions.VRM;
         const materialProperties = vrm.materialProperties;
-        console.trace(materialProperties);
         scene.add(vrmScene);
     });
 };
+// nokoko();
 
 const nokokoVRM = () => {
     new VRMLoader().load("vrm/nokoko.vrm", function(vrm) {
@@ -112,10 +151,13 @@ const nokokoVRM = () => {
         scene.add(vrm.scene);
     });
 };
-nokoko();
 
 // レンダリング
 const animation = () => {
+    if (scene.children && scene.children.length >= 2) {
+        // camera = new THREE.PerspectiveCamera(45, width / height, 1, 300);
+        // camera.position.set(scene.children[1].position.x, scene.children[1].position.y + 3, scene.children[1].position.z);
+    }
     renderer.render(scene, camera);
     mixer && mixer.update(clock.getDelta());
     requestAnimationFrame(animation);
@@ -126,3 +168,24 @@ let mixer: THREE.AnimationMixer;
 animation();
 
 // https://github.com/Keshigom/WebVRM
+
+function fixAnimeClip() {
+    let newAnimeClip = _.cloneDeep(animeClip);
+    newAnimeClip.tracks = _.map(newAnimeClip.tracks, (clip: AnimationClip) => {
+        const oldKey = clip.name.split(".")[0];
+        const opt = "." + clip.name.split(".")[1];
+        const newKey = Object.keys(born).filter(k => born[k] === oldKey);
+        if (newKey.length > 0 && newKey.toString() != "") {
+            clip.name = newKey + opt;
+            console.log(clip.name);
+            return clip;
+        } else {
+            //console.log(oldKey);
+            //console.log(clip.values);
+            return null;
+        }
+    });
+    newAnimeClip.tracks = _.compact(newAnimeClip.tracks);
+    console.log(newAnimeClip);
+    animeClip = newAnimeClip;
+}

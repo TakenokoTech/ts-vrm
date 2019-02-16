@@ -22,9 +22,10 @@ export default class Skeleton {
         if (json.extensions) {
             const vrm: VRM = json.extensions.VRM as VRM;
             for (const target of vrm.humanoid.humanBones) {
+                const name = json.nodes[target.node].name;
                 newBoneMap.set(target.bone, {
-                    name: json.nodes[target.node].name,
-                    bone: scene.getObjectByName(json.nodes[target.node].name)
+                    name: name,
+                    bone: scene.getObjectByName(name)
                 });
             }
         }
