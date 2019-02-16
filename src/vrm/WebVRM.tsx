@@ -4,6 +4,7 @@ import BlendShape from "./BlendShape";
 import Skeleton from "./Skeleton";
 import { Vrm } from "../../schema/UniVRM/vrm.schema";
 import VRMLoader from "./VRMLoader";
+import _ from "lodash";
 
 /**
  *
@@ -40,7 +41,7 @@ export default class WebVRM {
     }
 
     private loadVRM(avatarFileURL: string, targetScene: Scene, callBackReady: Function) {
-        new VRMLoader().load(avatarFileURL, vrm => {
+        new VRMLoader().load(avatarFileURL, (vrm: Vrm) => {
             vrm.scene.name = "VRM";
             vrm.scene.traverse(this.attachMaterial);
             this.vrm = vrm;
@@ -53,33 +54,28 @@ export default class WebVRM {
     }
 
     private attachMaterial(object3D: Object3D) {
+        const createMaterial = (material: any): THREE.MeshBasicMaterial => {
+            let newMaterial = new THREE.MeshBasicMaterial();
+            newMaterial.name = material.name;
+            newMaterial.color.copy(material.color);
+            newMaterial.map = material.map;
+            newMaterial.alphaTest = material.alphaTest;
+            newMaterial.morphTargets = material.morphTargets;
+            newMaterial.morphNormals = material.morphNormals;
+            newMaterial.skinning = material.skinning;
+            newMaterial.transparent = material.transparent;
+            newMaterial.lights = false;
+            // newMaterial.program = material.program;
+            return newMaterial;
+        };
         let object = object3D as CustomObject3D;
         if (!object.material) {
             return;
         }
         if (Array.isArray(object.material)) {
-            for (var i = 0, il = object.material.length; i < il; i++) {
-                var material = new THREE.MeshBasicMaterial();
-                THREE.Material.prototype.copy.call(material, object.material[i]);
-                material.color.copy(new THREE.Color(object.material[i].color[0], object.material[i].color[1], object.material[i].color[2]));
-                material.map = object.material[i].map;
-                material.lights = false;
-                material.skinning = object.material[i].skinning;
-                material.morphTargets = object.material[i].morphTargets;
-                material.morphNormals = object.material[i].morphNormals;
-                console.log(object.material[i]);
-                object.material[i] = material;
-            }
+            object.material.forEach((m, index) => (object.material[index] = createMaterial(m)));
         } else {
-            var material = new THREE.MeshBasicMaterial();
-            THREE.Material.prototype.copy.call(material, object.material);
-            material.color.copy(object.material.color);
-            material.map = object.material.map;
-            material.lights = false;
-            material.skinning = object.material.skinning;
-            material.morphTargets = object.material.morphTargets;
-            material.morphNormals = object.material.morphNormals;
-            object.material = material;
+            object.material = createMaterial(object.material);
         }
     }
 }
