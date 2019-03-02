@@ -5,6 +5,8 @@ import Stats from "stats-js";
 import OrbitControls from "three-orbitcontrols";
 import WebVRM from "../vrm/WebVRM";
 import _ from "lodash";
+import sampleAnime from "../../schema/Animation/anime.json";
+import { VrmAnimation, Key } from "../../schema/Animation/RootObject ";
 
 const clock = new THREE.Clock(true);
 
@@ -94,34 +96,36 @@ function init(targetCanvas: Element) {
     };
 
     const anime = () => {
-        const zRadian = (45 * Math.PI) / 180;
-        const armEuler = new THREE.Euler(0, 0, zRadian, "XYZ");
+        const zRadian = -(45 * Math.PI) / 180;
         const unitQuaternion = [0, 0, 0, 1];
-        const armQuaternion = new THREE.Quaternion().setFromEuler(armEuler).toArray();
+        const armQuaternion = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, zRadian, "XYZ")).toArray();
 
         const avaterBones: any = {};
         avatar.scene.traverse((object: any) => {
-            // console.log(object.name);
+            console.log(object.name);
             if (object.isBone) avaterBones[object.name] = object;
         });
 
-        const bones: THREE.Bone[] = [avaterBones.J_Bip_L_UpperArm];
-        const clip = THREE.AnimationClip.parseAnimation(
-            {
-                hierarchy: [
-                    {
-                        keys: [{ rot: unitQuaternion, time: 0 }, { rot: armQuaternion, time: 0.5 }, { rot: unitQuaternion, time: 1.0 }]
-                    }
-                ]
-            },
-            bones,
-            bones.toString()
-        );
+        const bones: THREE.Bone[] = [];
+        const hierarchy: any[] = [];
+        const animation: VrmAnimation[] = sampleAnime.vrmAnimation;
+        for (let ani of animation) {
+            bones.push(avaterBones[ani.name]);
+            hierarchy.push({
+                keys: _.map(ani.keys, (key: Key) => {
+                    const newKey = key;
+                    newKey.rot[0] = -newKey.rot[0];
+                    newKey.rot[1] = -newKey.rot[1];
+                    return newKey;
+                })
+            });
+        }
+        const clip = THREE.AnimationClip.parseAnimation({ hierarchy: hierarchy }, bones, bones.toString());
 
         _.each(avatar.scene.children, (child: any, i: number) => {
             if (!child.skeleton || !child.skeleton.bones) return;
             _.each(child.skeleton.bones, born => {
-                if (bones[bones.length - 1].name == born.name) {
+                if (bones[0] && bones[0].name == born.name) {
                     console.log(i, born.name);
                     animationMixer = new THREE.AnimationMixer(child);
                 }
