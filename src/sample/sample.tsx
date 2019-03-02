@@ -4,6 +4,9 @@ import { GLTF, Scene, AnimationClip } from "three";
 import Stats from "stats-js";
 import OrbitControls from "three-orbitcontrols";
 import WebVRM from "../vrm/WebVRM";
+import _ from "lodash";
+
+const clock = new THREE.Clock(true);
 
 let avatar: WebVRM;
 let stats: Stats;
@@ -11,6 +14,7 @@ let controls: OrbitControls;
 let scene: THREE.Scene;
 let camera: THREE.PerspectiveCamera;
 let renderer: THREE.WebGLRenderer;
+let animationMixer: THREE.AnimationMixer;
 
 // 初期化
 function init(targetCanvas: Element) {
@@ -27,7 +31,7 @@ function init(targetCanvas: Element) {
         light.position.set(0, 1, 0);
         scene.add(light);
 
-        renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         //renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setPixelRatio(1);
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -84,14 +88,54 @@ function init(targetCanvas: Element) {
             //         mixer.clipAction(anim).play();
             //     }
             // }
+            anime();
         };
         avatar = new WebVRM(modelURL, scene, callback);
+    };
+
+    const anime = () => {
+        const zRadian = (45 * Math.PI) / 180;
+        const armEuler = new THREE.Euler(0, 0, zRadian, "XYZ");
+        const unitQuaternion = [0, 0, 0, 1];
+        const armQuaternion = new THREE.Quaternion().setFromEuler(armEuler).toArray();
+
+        const avaterBones: any = {};
+        avatar.scene.traverse((object: any) => {
+            // console.log(object.name);
+            if (object.isBone) avaterBones[object.name] = object;
+        });
+
+        const bones: THREE.Bone[] = [avaterBones.J_Bip_L_UpperArm];
+        const clip = THREE.AnimationClip.parseAnimation(
+            {
+                hierarchy: [
+                    {
+                        keys: [{ rot: unitQuaternion, time: 0 }, { rot: armQuaternion, time: 0.5 }, { rot: unitQuaternion, time: 1.0 }]
+                    }
+                ]
+            },
+            bones,
+            bones.toString()
+        );
+
+        _.each(avatar.scene.children, (child: any, i: number) => {
+            if (!child.skeleton || !child.skeleton.bones) return;
+            _.each(child.skeleton.bones, born => {
+                if (bones[bones.length - 1].name == born.name) {
+                    console.log(i, born.name);
+                    animationMixer = new THREE.AnimationMixer(child);
+                }
+            });
+        });
+
+        animationMixer.clipAction(clip).play();
     };
 
     // 描画更新処理
     function update() {
         requestAnimationFrame(update);
-        renderer.render(scene, camera);
+        animationMixer && animationMixer.update(clock.getDelta());
+        renderer && renderer.render(scene, camera);
         stats.update();
     }
 
