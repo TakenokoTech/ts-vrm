@@ -3,8 +3,9 @@ var path = require("path");
 module.exports = {
     entry: {
         app: "./src/index",
-        sample: "./src/vrm/sample",
+        sample: "./src/sample/sample",
         aaa: "./src/aaa",
+        anime: "./src/anime",
         "react-vrm": "./react-vrm/index"
     },
     output: {

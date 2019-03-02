@@ -8,6 +8,8 @@ import VRMLoader from "./vrm/VRMLoader";
 import FBXLoader from "./loader/FBXLoader";
 import _ from "lodash";
 import born from "../schema/born.json";
+import yaml from "js-yaml";
+import anime from "../static/motion/Animation.json";
 
 // 幅、高さ取得
 const width = window.innerWidth;
@@ -37,12 +39,8 @@ controls.maxPolarAngle = Math.PI * 0.495;
 controls.autoRotate = true;
 controls.autoRotateSpeed = 1.0;
 
-// メッシュの作成と追加
-const grid = new THREE.GridHelper(10, 5);
-const sphere = new THREE.Mesh(new THREE.SphereGeometry(1), new THREE.MeshPhongMaterial({ color: 0x0074df }));
-sphere.position.set(0, 1, 0);
-// scene.add(grid, sphere);
-
+/**
+let animeClip: AnimationClip;
 const dancing = () => {
     new FBXLoader().load(
         "fbx/takenoko_nokono.fbx",
@@ -67,12 +65,13 @@ const dancing = () => {
     );
 };
 dancing();
+**/
 
 const clock1 = new THREE.Clock();
 let animeClip: AnimationClip;
 let pandaMixer: THREE.AnimationMixer;
 const pandaGltf = () => {
-    new GLTFLoader().load("model/panda.gltf" /*"motion/nokoko/nokono_v1.0.2.glb"*/, data => {
+    new GLTFLoader().load("output/takenoko_nokono.glb", data => {
         const gltf = data;
         const object = gltf.scene;
         const animations: AnimationClip[] = gltf.animations;
@@ -101,7 +100,7 @@ const pandaGltf = () => {
         // nokoko();
     });
 };
-// pandaGltf();
+pandaGltf();
 
 const clock2 = new THREE.Clock();
 let nokokoAnimeClip: AnimationClip;
@@ -110,20 +109,23 @@ const nokoko = () => {
     new GLTFLoader().load("vrm/nokoko.vrm", data => {
         const gltf: GLTF = data;
         const vrmScene: Scene = gltf.scene;
-        const animations: AnimationClip[] = gltf.animations;
-        if (animations && animations.length) {
-            nokokoMixer = new THREE.AnimationMixer(vrmScene);
-            for (let anim of animations) {
-                nokokoMixer.clipAction(anim).play();
-            }
-        }
+        // const animations: AnimationClip[] = gltf.animations;
+        // if (animations && animations.length) {
+        //     nokokoMixer = new THREE.AnimationMixer(vrmScene);
+        //     for (let anim of animations) {
+        //         nokokoMixer.clipAction(anim).play();
+        //     }
+        // }
+
+        console.log(anime as AnimationClip);
+        const nokokoAnimeClip: AnimationClip = anime as AnimationClip;
 
         // nokokoAnimeClip = fixAnimeClip(animeClip);
-        nokokoMixer = new THREE.AnimationMixer(vrmScene);
-        if (nokokoAnimeClip) {
-            gltf.animations = [nokokoAnimeClip];
-            nokokoMixer.clipAction(nokokoAnimeClip).play();
-        }
+        // nokokoMixer = new THREE.AnimationMixer(vrmScene);
+        // if (nokokoAnimeClip) {
+        //     gltf.animations = [nokokoAnimeClip];
+        //     nokokoMixer.clipAction(nokokoAnimeClip).play();
+        // }
 
         const vrm: Vrm = gltf.userData.gltfExtensions.VRM;
         const materialProperties = vrm.materialProperties;
@@ -139,46 +141,7 @@ const nokoko = () => {
         // roop(scene.children[2].children[0].children);
     });
 };
-// nokoko();
-
-const nokokoVRM = () => {
-    new VRMLoader().load("vrm/nokoko.vrm", function(vrm) {
-        // vrm.scene.traverse(function(object) {
-        //     if (object.material) {
-        //         if (Array.isArray(object.material)) {
-        //             for (var i = 0, il = object.material.length; i < il; i++) {
-        //                 var material = new THREE.MeshBasicMaterial();
-        //                 THREE.Material.prototype.copy.call(
-        //                     material,
-        //                     object.material[i]
-        //                 );
-        //                 material.color.copy(object.material[i].color);
-        //                 material.map = object.material[i].map;
-        //                 material.lights = false;
-        //                 material.skinning = object.material[i].skinning;
-        //                 material.morphTargets = object.material[i].morphTargets;
-        //                 material.morphNormals = object.material[i].morphNormals;
-        //                 object.material[i] = material;
-        //             }
-        //         } else {
-        //             var material = new THREE.MeshBasicMaterial();
-        //             THREE.Material.prototype.copy.call(
-        //                 material,
-        //                 object.material
-        //             );
-        //             material.color.copy(object.material.color);
-        //             material.map = object.material.map;
-        //             material.lights = false;
-        //             material.skinning = object.material.skinning;
-        //             material.morphTargets = object.material.morphTargets;
-        //             material.morphNormals = object.material.morphNormals;
-        //             object.material = material;
-        //         }
-        //     }
-        // });
-        scene.add(vrm.scene);
-    });
-};
+nokoko();
 
 // レンダリング
 const animation = () => {
@@ -187,7 +150,6 @@ const animation = () => {
         // camera.position.set(scene.children[1].position.x, scene.children[1].position.y + 3, scene.children[1].position.z);
     }
     renderer.render(scene, camera);
-    pandaMixer && pandaMixer.update(clock1.getDelta());
     nokokoMixer && nokokoMixer.update(clock2.getDelta());
     // console.log(pandaMixer && pandaMixer.time, nokokoMixer && nokokoMixer.time);
     requestAnimationFrame(animation);

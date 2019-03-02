@@ -3,7 +3,7 @@ import GLTFLoader from "three-gltf-loader";
 import { GLTF, Scene, AnimationClip } from "three";
 import Stats from "stats-js";
 import OrbitControls from "three-orbitcontrols";
-import WebVRM from "./WebVRM";
+import WebVRM from "../vrm/WebVRM";
 
 let avatar: WebVRM;
 let stats: Stats;

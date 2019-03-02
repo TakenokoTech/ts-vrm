@@ -36,6 +36,7 @@
     },
     "dependencies": {
         "@types/three": "^0.93.19",
+        "js-yaml": "^3.12.1",
         "json-schema-to-typescript": "^6.1.1",
         "pako": "^1.0.8",
         "stats-js": "^1.0.0",

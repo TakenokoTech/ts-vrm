@@ -18,7 +18,8 @@ $vrm_files = @(
 
 $vrm_type_files = @(
     "vrm.schema",
-    "vrm.blendshape.schema"
+    "vrm.blendshape.schema",
+    "vrm.humanoid.schema"
 )
 
 $glTF_files = @(
