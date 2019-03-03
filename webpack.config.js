@@ -4,7 +4,6 @@ module.exports = {
     entry: {
         app: "./src/index",
         sample: "./src/sample/sample",
-        aaa: "./src/aaa",
         anime: "./src/anime",
         "react-vrm": "./react-vrm/index"
     },

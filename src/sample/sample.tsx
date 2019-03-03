@@ -48,9 +48,10 @@ function init(targetCanvas: Element) {
     const initStats = () => {
         stats = new Stats();
         stats.dom.style.position = "relative";
-        stats.dom.style.top = "5px";
+        stats.dom.style.top = "4px";
+        stats.dom.style.left = "4px";
         stats.dom.style.margin = "auto";
-        const debugWindow = document.getElementById("debugWindow") as Element;
+        const debugWindow = document.getElementById("stat") as Element;
         debugWindow.appendChild(stats.dom);
     };
 
@@ -150,7 +151,7 @@ function init(targetCanvas: Element) {
             avaterBones[ani.name].quaternion.set(-key.rot[0], -key.rot[1], key.rot[2], key.rot[3]);
         }
         const endTime = new Date();
-        console.log(endTime.getMilliseconds() - startTime.getMilliseconds() + "ms");
+        // console.log(endTime.getMilliseconds() - startTime.getMilliseconds() + "ms");
     };
 
     // 描画更新処理

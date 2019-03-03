@@ -12,8 +12,12 @@
 			margin: 0px;
 			overflow: hidden;
 		}
-
+		#stat {
+			z-index: 200;
+			position: absolute;
+		}
 		#debugWindow {
+			display: none;
 			z-index: 200;
 			position: absolute;
 			max-width: 250px;
@@ -37,6 +41,7 @@
 
 	<div id="threeCanvas" style="z-index: 2;position: absolute;"></div>
 
+	<div id="stat"></div>
 	<div id="debugWindow">
 		<div>Debug Window</div>
 		<div class="row">

@@ -1,9 +1,9 @@
 import * as THREE from "three";
 import { Object3D, Scene, Material } from "three";
 import BlendShape from "./BlendShape";
-import Skeleton from "./Skeleton";
 import { Vrm } from "../../schema/UniVRM/vrm.schema";
 import VRMLoader from "./VRMLoader";
+import Skeleton from "./Skeleton";
 import _ from "lodash";
 
 /**
@@ -43,6 +43,8 @@ export default class WebVRM {
     private loadVRM(avatarFileURL: string, targetScene: Scene, callBackReady: Function) {
         new VRMLoader().load(avatarFileURL, (vrm: Vrm) => {
             vrm.scene.name = "VRM";
+            console.log(vrm.scene);
+            // vrm.scene.children.splice(1, 2);
             vrm.scene.traverse(this.attachMaterial);
             this.vrm = vrm;
             this.skeleton = new Skeleton(vrm.scene, vrm.parser.json);
