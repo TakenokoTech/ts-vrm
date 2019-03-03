@@ -17,6 +17,8 @@ let scene: THREE.Scene;
 let camera: THREE.PerspectiveCamera;
 let renderer: THREE.WebGLRenderer;
 let animationMixer: THREE.AnimationMixer;
+const avaterBones: { [key: string]: THREE.Bone } = {};
+let messageData: any = null;
 
 // 初期化
 function init(targetCanvas: Element) {
@@ -79,18 +81,12 @@ function init(targetCanvas: Element) {
                 element.innerHTML = key;
                 expressionSelector && expressionSelector.appendChild(element);
             }
-            // animator
-            // let mixer: THREE.AnimationMixer;
-            // const gltf: GLTF = avatar.vrm;
-            // const animations = gltf.animations;
-            // if (animations && animations.length) {
-            //     console.log("animations.length: ", animations.length);
-            //     mixer = new THREE.AnimationMixer(gltf);
-            //     for (let anim of animations) {
-            //         mixer.clipAction(anim).play();
-            //     }
-            // }
-            anime();
+
+            avatar.scene.traverse((object: any) => {
+                // console.log(object.name);
+                if (object.isBone) avaterBones[object.name] = object;
+            });
+            // anime();
         };
         avatar = new WebVRM(modelURL, scene, callback);
     };
@@ -99,12 +95,6 @@ function init(targetCanvas: Element) {
         const zRadian = -(45 * Math.PI) / 180;
         const unitQuaternion = [0, 0, 0, 1];
         const armQuaternion = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, zRadian, "XYZ")).toArray();
-
-        const avaterBones: any = {};
-        avatar.scene.traverse((object: any) => {
-            console.log(object.name);
-            if (object.isBone) avaterBones[object.name] = object;
-        });
 
         const bones: THREE.Bone[] = [];
         const hierarchy: any[] = [];
@@ -135,10 +125,39 @@ function init(targetCanvas: Element) {
         animationMixer.clipAction(clip).play();
     };
 
+    const realtimeAnimeWebsocket = () => {
+        const socket: WebSocket = new WebSocket("ws://127.0.0.1:5001");
+        socket.onopen = (event: Event) => {
+            console.log("websocket open");
+            socket.onmessage = message => {
+                messageData = message.data;
+            };
+            socket.onclose = () => {
+                console.log("websocket close");
+            };
+        };
+    };
+
+    const realtimeAnime = () => {
+        const startTime = new Date();
+        if (!messageData) return;
+        const animation: VrmAnimation[] = JSON.parse(messageData).vrmAnimation;
+        for (let ani of animation) {
+            const bone = avaterBones[ani.name];
+            const key = ani.keys[ani.keys.length - 1];
+            if (!bone || !key) continue;
+            // console.log(bone, key);
+            avaterBones[ani.name].quaternion.set(-key.rot[0], -key.rot[1], key.rot[2], key.rot[3]);
+        }
+        const endTime = new Date();
+        console.log(endTime.getMilliseconds() - startTime.getMilliseconds() + "ms");
+    };
+
     // 描画更新処理
     function update() {
         requestAnimationFrame(update);
-        animationMixer && animationMixer.update(clock.getDelta());
+        // animationMixer && animationMixer.update(clock.getDelta());
+        realtimeAnime();
         renderer && renderer.render(scene, camera);
         stats.update();
     }
@@ -150,6 +169,7 @@ function init(targetCanvas: Element) {
     // loadModel(`../../static/vrm/panda.vrm`);
     // loadModel(`https://dl.dropboxusercontent.com/s/tiwmoh8te3g5i6b/monoGaku.vrm`);
     update();
+    realtimeAnimeWebsocket();
 }
 
 // 関節

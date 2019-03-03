@@ -1,3 +1,5 @@
+# https://dwango.github.io/vrm/gltf_about/
+
 import struct
 import json
 
