@@ -4,8 +4,8 @@ import GLTFLoader from "three-gltf-loader";
 import OrbitControls from "three-orbitcontrols";
 import { Vrm } from "../schema/vrm.schema";
 import { VrmMaterial } from "../schema/vrm.material.schema";
-import VRMLoader from "./vrm/VRMLoader";
-import FBXLoader from "./loader/FBXLoader";
+import VRMLoader from "../../react-vrm/vrm/VRMLoader";
+import FBXLoader from "../../react-vrm/fbx/FBXLoader";
 import _ from "lodash";
 import born from "../schema/born.json";
 import yaml from "js-yaml";
@@ -100,7 +100,7 @@ const pandaGltf = () => {
         // nokoko();
     });
 };
-pandaGltf();
+// pandaGltf();
 
 const clock2 = new THREE.Clock();
 let nokokoAnimeClip: AnimationClip;

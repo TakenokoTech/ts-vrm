@@ -50,6 +50,7 @@ export default class WebVRM {
             this.skeleton = new Skeleton(vrm.scene, vrm.parser.json);
             this.blendShape = new BlendShape(vrm.scene, vrm.parser.json);
             this.isReady = true;
+            vrm.scene.castShadow = true;
             targetScene.add(vrm.scene);
             callBackReady();
         });

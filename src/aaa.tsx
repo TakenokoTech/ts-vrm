@@ -6,7 +6,7 @@ import { Vrm } from "../schema/vrm.schema";
 import { VrmMaterial } from "../schema/vrm.material.schema";
 import VRMLoader from "./vrm/VRMLoader";
 import Stats from "stats-js";
-import FBXLoader from "./loader/FBXLoader";
+import FBXLoader from "./fbx/FBXLoader";
 
 var container, stats, controls;
 var camera, scene, renderer, light;

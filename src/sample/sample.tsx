@@ -3,7 +3,7 @@ import GLTFLoader from "three-gltf-loader";
 import { GLTF, Scene, AnimationClip } from "three";
 import Stats from "stats-js";
 import OrbitControls from "three-orbitcontrols";
-import WebVRM from "../vrm/WebVRM";
+import WebVRM from "../../react-vrm/vrm/WebVRM";
 import _ from "lodash";
 import sampleAnime from "../../schema/Animation/anime.json";
 import { VrmAnimation, Key } from "../../schema/Animation/RootObject ";
@@ -13,7 +13,7 @@ const clock = new THREE.Clock(true);
 let avatar: WebVRM;
 let stats: Stats;
 let controls: OrbitControls;
-let scene: THREE.Scene;
+let scene: THREE.Scene = new THREE.Scene();
 let camera: THREE.PerspectiveCamera;
 let renderer: THREE.WebGLRenderer;
 let animationMixer: THREE.AnimationMixer;
@@ -23,26 +23,54 @@ let messageData: any = null;
 // 初期化
 function init(targetCanvas: Element) {
     function initThree(canvas: Element) {
-        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.25, 20);
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.25, 100);
         camera.position.set(0, 1.5, -1);
 
         controls = new OrbitControls(camera, canvas);
-        controls.target.set(0, 1.5, 0);
+        controls.target.set(0, 0.75, 0);
         controls.update();
 
-        scene = new THREE.Scene();
-        const light = new THREE.HemisphereLight(0xbbbbff, 0x444422);
-        light.position.set(0, 1, 0);
-        scene.add(light);
-
         renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        //renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setPixelRatio(1);
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.gammaOutput = true;
-        renderer.shadowMap.autoUpdate = false;
+        renderer.shadowMap.enabled = true;
+        // renderer.setPixelRatio(window.devicePixelRatio);
+        // renderer.shadowMap.autoUpdate = false;
         canvas.appendChild(renderer.domElement);
     }
+
+    const initLight = () => {
+        const light = new THREE.HemisphereLight(0xffffff, 0x0000000);
+        light.position.set(0, 1, 0);
+        // scene.add(light);
+
+        const light2 = new THREE.SpotLight(0xffffff, 2, 100, Math.PI / 4, 1);
+        light2.castShadow = true;
+        light2.shadow.mapSize.width = 2048;
+        light2.shadow.mapSize.height = 2048;
+        // scene.add(light2);
+
+        var light3 = new THREE.DirectionalLight(0xffffff);
+        light3.position.set(0, 0, 1000);
+        light3.shadowMapWidth = 2048;
+        light3.shadowMapHeight = 2048;
+        light3.castShadow = true;
+        scene.add(light3);
+    };
+
+    // 床
+    const initFloar = () => {
+        const meshFloor = new THREE.Mesh(
+            new THREE.BoxGeometry(100, 0.1, 100),
+            new THREE.MeshLambertMaterial({
+                side: THREE.DoubleSide,
+                color: 0xcd5c5c
+            })
+        );
+        meshFloor.receiveShadow = true;
+        //scene.add(meshFloor);
+    };
 
     //FPS表示
     const initStats = () => {
@@ -166,6 +194,8 @@ function init(targetCanvas: Element) {
     initThree(targetCanvas);
     initStats();
     // addTestObject();
+    initLight();
+    initFloar();
     loadModel(`../../static/vrm/nokoko.vrm`);
     // loadModel(`../../static/vrm/panda.vrm`);
     // loadModel(`https://dl.dropboxusercontent.com/s/tiwmoh8te3g5i6b/monoGaku.vrm`);
