@@ -5,7 +5,7 @@ module.exports = {
         app: "./src/index",
         sample: "./src/sample/sample",
         anime: "./src/anime",
-        "react-vrm": "./react-vrm/index"
+        vrm: "./react-vrm/index"
     },
     output: {
         path: path.resolve(__dirname, "dist"),
