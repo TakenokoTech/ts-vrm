@@ -1,13 +1,12 @@
+import _ from "lodash";
 import * as THREE from "three";
 import { GLTF, Scene, AnimationClip } from "three";
 import GLTFLoader from "three-gltf-loader";
 import OrbitControls from "three-orbitcontrols";
-import { Vrm } from "../schema/vrm.schema";
-import { VrmMaterial } from "../schema/vrm.material.schema";
+import { Vrm } from "../../schema/vrm.schema";
 import VRMLoader from "../react-vrm/vrm/VRMLoader";
 import FBXLoader from "../react-vrm/fbx/FBXLoader";
-import _ from "lodash";
-import born from "../schema/born.json";
+import born from "../../schema/born.json";
 
 // 幅、高さ取得
 const width = window.innerWidth;

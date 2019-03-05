@@ -2,10 +2,10 @@ var path = require("path");
 
 module.exports = {
     entry: {
-        app: "./src/index",
-        sample: "./src/sample/sample",
-        anime: "./src/anime",
-        vrm: "./react-vrm/index"
+        app: "./src/sample/index",
+        vrm: "./src/react-vrm/index",
+        anime: "./src/sample/anime",
+        sample: "./src/sample/sample"
     },
     output: {
         path: path.resolve(__dirname, "dist"),

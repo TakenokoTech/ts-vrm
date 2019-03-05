@@ -1,12 +1,12 @@
+import _ from "lodash";
 import * as THREE from "three";
 import GLTFLoader from "three-gltf-loader";
 import { GLTF, Scene, AnimationClip } from "three";
 import Stats from "stats-js";
 import OrbitControls from "three-orbitcontrols";
-import WebVRM from "../../react-vrm/vrm/WebVRM";
-import _ from "lodash";
+import WebVRM from "../react-vrm/vrm/WebVRM";
 import sampleAnime from "../../schema/Animation/anime.json";
-import { VrmAnimation, Key } from "../../schema/Animation/RootObject ";
+import { VrmAnimation, Key } from "../../schema/Animation/RootObject";
 
 const clock = new THREE.Clock(true);
 
