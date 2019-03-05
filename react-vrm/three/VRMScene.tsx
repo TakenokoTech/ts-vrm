@@ -1,37 +1,37 @@
-import * as THREE from "three";
+import { Camera, Scene, WebGLRenderer, PerspectiveCamera, Light, DirectionalLight, Bone } from "three";
 import OrbitControls from "three-orbitcontrols";
 import Stats from "stats-js";
 import WebVRM from "../../react-vrm/vrm/WebVRM";
 
 interface BaseThreeScene {
-    scene: THREE.Scene;
-    camera: THREE.PerspectiveCamera;
+    scene: Scene;
+    camera: Camera;
     avatar: WebVRM;
-    renderer: THREE.WebGLRenderer;
+    renderer: WebGLRenderer;
     controls: OrbitControls;
     stats: Stats;
 
-    createCamera(): THREE.PerspectiveCamera;
+    createCamera(): PerspectiveCamera;
     createControls(): OrbitControls;
-    createRenderer(): THREE.WebGLRenderer;
-    createLight(): THREE.Light;
+    createRenderer(): WebGLRenderer;
+    createLight(): Light;
     createStats(): Stats;
     onLoad(): void;
     render(): void;
 }
 
 export default class VRMScene implements BaseThreeScene {
-    public scene = new THREE.Scene();
-    public camera: THREE.PerspectiveCamera;
+    public scene = new Scene();
+    public camera: Camera;
     public avatar: WebVRM;
-    public renderer: THREE.WebGLRenderer;
+    public renderer: WebGLRenderer;
     public controls: OrbitControls;
     public stats: Stats;
 
-    private avaterBones: { [key: string]: THREE.Bone } = {};
+    private avaterBones: { [key: string]: Bone } = {};
     private modelURL = `../../static/vrm/nokoko.vrm`;
 
-    constructor(private canvas: Element) {
+    constructor(private canvas: HTMLElement) {
         this.stats = this.createStats();
         this.camera = this.createCamera();
         this.controls = this.createControls();
@@ -41,8 +41,8 @@ export default class VRMScene implements BaseThreeScene {
         this.render();
     }
 
-    createCamera(): THREE.PerspectiveCamera {
-        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.25, 100);
+    createCamera(): PerspectiveCamera {
+        const camera = new PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.25, 100);
         camera.position.set(0, 1.5, -1);
         return camera;
     }
@@ -54,8 +54,8 @@ export default class VRMScene implements BaseThreeScene {
         return controls;
     }
 
-    createRenderer(): THREE.WebGLRenderer {
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    createRenderer(): WebGLRenderer {
+        const renderer = new WebGLRenderer({ antialias: true, alpha: true });
         renderer.setPixelRatio(1);
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.gammaOutput = true;
@@ -63,8 +63,8 @@ export default class VRMScene implements BaseThreeScene {
         return renderer;
     }
 
-    createLight(): THREE.Light {
-        const light3 = new THREE.DirectionalLight(0xffffff);
+    createLight(): Light {
+        const light3 = new DirectionalLight(0xffffff);
         light3.position.set(0, 0, 1000);
         light3.shadowMapWidth = 2048;
         light3.shadowMapHeight = 2048;

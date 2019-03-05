@@ -4,3 +4,5 @@ interface Window {
 }
 
 declare var window: Window;
+declare module "three-orbitcontrols";
+declare module "stats-js";

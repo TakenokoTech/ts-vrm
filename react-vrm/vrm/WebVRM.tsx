@@ -1,17 +1,16 @@
-import * as THREE from "three";
-import { Object3D, Scene, Material } from "three";
-import BlendShape from "./BlendShape";
+import _ from "lodash";
+import { Object3D, Scene, Material, MeshBasicMaterial } from "three";
 import { Vrm } from "../../schema/UniVRM/vrm.schema";
+import BlendShape from "./BlendShape";
 import VRMLoader from "./VRMLoader";
 import Skeleton from "./Skeleton";
-import _ from "lodash";
 
 /**
  *
  * https://github.com/Keshigom/WebVRM/blob/master/docs/src/WebVRM.js
  */
 export default class WebVRM {
-    private vrm: Vrm;
+    private vrm: Vrm | undefined;
     private skeleton: Skeleton;
     private blendShape: BlendShape;
     private isReady = false;
@@ -58,7 +57,7 @@ export default class WebVRM {
 
     private attachMaterial(object3D: Object3D) {
         const createMaterial = (material: any): THREE.MeshBasicMaterial => {
-            let newMaterial = new THREE.MeshBasicMaterial();
+            let newMaterial = new MeshBasicMaterial();
             newMaterial.name = material.name;
             newMaterial.color.copy(material.color);
             newMaterial.map = material.map;

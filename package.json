@@ -38,7 +38,9 @@
         "ws": "^6.1.4"
     },
     "dependencies": {
-        "@types/three": "^0.93.19",
+        "@types/stats": "^0.16.30",
+        "@types/stats.js": "^0.17.0",
+        "@types/three": "^0.93.22",
         "js-yaml": "^3.12.1",
         "json-schema-to-typescript": "^6.1.1",
         "pako": "^1.0.8",

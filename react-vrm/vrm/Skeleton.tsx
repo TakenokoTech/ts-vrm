@@ -1,8 +1,6 @@
-import * as THREE from "three";
 import { GLTF, Scene, AnimationClip, Object3D } from "three";
-import GLTFLoader from "three-gltf-loader";
-import { VRM, VRMLoader, VRMHumanBoneName } from "three-vrm";
 import { GlTFProperty } from "../../schema/glTF/glTF.schema";
+import { Vrm, VrmHumanoidBone } from "../../schema/UniVRM/vrm.schema";
 
 interface BoneReef {
     name: string;
@@ -11,7 +9,7 @@ interface BoneReef {
 
 //  ポーズ制御
 export default class Skeleton {
-    private boneMap: Map<VRMHumanBoneName, BoneReef> = new Map();
+    private boneMap: Map<string, BoneReef> = new Map();
 
     constructor(scene: Scene, json: GlTFProperty) {
         this.boneMap = this.createBoneMap(scene, json);
@@ -20,8 +18,10 @@ export default class Skeleton {
     private createBoneMap(scene: Scene, json: GlTFProperty) {
         let newBoneMap = new Map();
         if (json.extensions) {
-            const vrm: VRM = json.extensions.VRM as VRM;
-            for (const target of vrm.humanoid.humanBones) {
+            const vrm: Vrm = json.extensions.VRM as Vrm;
+            if (!vrm || !vrm.humanoid) return newBoneMap;
+            for (const target of vrm.humanoid.humanBones || []) {
+                if (!target.node) continue;
                 const name = json.nodes[target.node].name;
                 newBoneMap.set(target.bone, {
                     name: name,
@@ -35,7 +35,7 @@ export default class Skeleton {
     // ボーンの角度を設定　setRotation("head",{x:0,y:0,z:1})
     // key   必須
     // x,y,z 指定したもののみ反映
-    setRotation(key: VRMHumanBoneName, angle: THREE.Euler) {
+    setRotation(key: string, angle: THREE.Euler) {
         const born: BoneReef | undefined = this.boneMap.get(key);
         if (born != undefined) {
             if (angle.x != undefined) born.bone.rotation.x = angle.x;
@@ -44,7 +44,7 @@ export default class Skeleton {
         }
     }
 
-    getBoneName(key: VRMHumanBoneName): string {
+    getBoneName(key: string): string {
         const born: BoneReef | undefined = this.boneMap.get(key);
         if (born != undefined) {
             return born.bone.name;
