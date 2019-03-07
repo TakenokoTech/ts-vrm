@@ -49,7 +49,7 @@ export default class WebVRM {
             this.skeleton = new Skeleton(vrm.scene, vrm.parser.json);
             this.blendShape = new BlendShape(vrm.scene, vrm.parser.json);
             this.isReady = true;
-            vrm.scene.castShadow = true;
+            //vrm.scene.castShadow = true;
             targetScene.add(vrm.scene);
             callBackReady();
         });
@@ -70,7 +70,10 @@ export default class WebVRM {
             // newMaterial.program = material.program;
             return newMaterial;
         };
+
         let object = object3D as CustomObject3D;
+        object.castShadow = true;
+
         if (!object.material) {
             return;
         }

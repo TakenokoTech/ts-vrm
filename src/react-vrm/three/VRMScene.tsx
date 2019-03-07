@@ -1,8 +1,9 @@
 import * as THREE from "three";
+import { Vector3 } from "three";
 import OrbitControls from "three-orbitcontrols";
 import Stats from "stats-js";
 import WebVRM from "../../react-vrm/vrm/WebVRM";
-import { Vector3 } from "three";
+import { SphereParam } from "./IVRMScene";
 
 interface BaseThreeScene {
     scene: THREE.Scene;
@@ -48,16 +49,16 @@ export default class VRMScene implements BaseThreeScene {
     }
 
     addScene() {
-        this.scene.add(this.createLight());
-        this.scene.add(this.createDictLight());
-        this.scene.add(this.createBall());
+        this.scene.add(this.createAmbientLight());
+        this.scene.add(this.createDictLight(new Vector3(-128, 256, -128)));
+        this.scene.add(this.createBall(new SphereParam(64, new Vector3(64, 128, 64))));
         this.scene.add(this.createFloar());
         // this.scene.add(this.createBackgroud());
     }
 
     createCamera(): THREE.PerspectiveCamera {
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.25, 2000);
-        camera.position.set(100, 200, -200);
+        camera.position.set(150, 300, -300);
         return camera;
     }
 
@@ -79,23 +80,25 @@ export default class VRMScene implements BaseThreeScene {
     }
 
     createLight(): THREE.Light {
-        // const light = new THREE.PointLight(0xffffff, 1.6);
-        // light.position.set(0, 256, -100);
-        // light.shadowMapWidth = 2048;
-        // light.shadowMapHeight = 2048;
-        // light.castShadow = true;
-        // this.scene.add(new THREE.PointLightHelper(light, 0xff0000));
-        var ambient = new THREE.AmbientLight(0x333333);
-        this.scene.add(ambient);
+        const light = new THREE.PointLight(0xffffff, 1.6);
+        light.position.set(0, 256, -100);
+        light.shadowMapWidth = 2048;
+        light.shadowMapHeight = 2048;
+        light.castShadow = true;
+        this.scene.add(new THREE.PointLightHelper(light, 0xff0000));
+        return light;
+    }
+
+    createAmbientLight(): THREE.Light {
+        const ambient = new THREE.AmbientLight(0x333333);
         return ambient;
     }
 
-    createDictLight(): THREE.Light | THREE.Object3D {
+    createDictLight(position: Vector3 = new Vector3(0, 256, -256)): THREE.Light | THREE.Object3D {
         const FIELD_SIZE = 256;
         const directionalLight = new THREE.DirectionalLight(0xaaaaaa, 1.6);
-        directionalLight.position.set(0, 256, -100);
+        directionalLight.position.set(position.x, position.y, position.z);
         directionalLight.shadow.camera.near = 0.5;
-        // directionalLight.shadow.camera.far = FIELD_SIZE;
         directionalLight.shadow.camera.top = FIELD_SIZE;
         directionalLight.shadow.camera.bottom = FIELD_SIZE * -1;
         directionalLight.shadow.camera.left = FIELD_SIZE;
@@ -108,20 +111,20 @@ export default class VRMScene implements BaseThreeScene {
     }
 
     createFloar(): THREE.Object3D {
-        const meshFloor = new THREE.Mesh(new THREE.BoxGeometry(1000, 100, 1000), new THREE.MeshLambertMaterial({ color: 0xcccccc }));
+        const meshFloor = new THREE.Mesh(new THREE.BoxGeometry(600, 100, 600), new THREE.MeshLambertMaterial({ color: 0xcccccc }));
         meshFloor.position.y = -50;
         meshFloor.receiveShadow = true;
         return meshFloor;
     }
 
-    createBall(): THREE.Object3D {
-        const ball = new THREE.Mesh(new THREE.SphereGeometry(64, 32, 32), new THREE.MeshLambertMaterial({ color: 0x00ff00, wireframe: true }));
-        ball.position.set(0, 90, 0);
+    createBall(param: SphereParam = new SphereParam()): THREE.Object3D {
+        const wireframe = new THREE.Mesh(new THREE.SphereGeometry(param.radius, param.widthSegments, param.heightSegments), new THREE.MeshLambertMaterial({ color: 0x00ff00, wireframe: true }));
+        wireframe.position.set(param.position.x, param.position.y, param.position.z);
+        wireframe.castShadow = true;
+        const ball = new THREE.Mesh(new THREE.SphereGeometry(param.radius, param.widthSegments, param.heightSegments), new THREE.MeshLambertMaterial({ color: 0x88ccff }));
+        ball.position.set(param.position.x, param.position.y, param.position.z);
         ball.castShadow = true;
-        const ball2 = new THREE.Mesh(new THREE.SphereGeometry(64, 32, 32), new THREE.MeshLambertMaterial({ color: 0x88ccff }));
-        ball2.position.set(0, 90, 0);
-        ball2.castShadow = true;
-        this.scene.add(ball2);
+        this.scene.add(wireframe);
         return ball;
     }
 
