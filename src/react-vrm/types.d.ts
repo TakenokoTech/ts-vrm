@@ -1,3 +1,5 @@
+import { Vector3 } from "three";
+
 declare module "three-orbitcontrols";
 declare module "stats-js";
 

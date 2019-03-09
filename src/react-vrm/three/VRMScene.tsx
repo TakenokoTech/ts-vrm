@@ -1,5 +1,6 @@
+import _ from "lodash";
 import * as THREE from "three";
-import { Vector3 } from "three";
+import { Vector3, MeshLambertMaterialParameters, MeshStandardMaterialParameters } from "three";
 import OrbitControls from "three-orbitcontrols";
 import Stats from "stats-js";
 import WebVRM from "../../react-vrm/vrm/WebVRM";
@@ -35,14 +36,14 @@ export default class VRMScene implements BaseThreeScene {
     private avaterBones: { [key: string]: THREE.Bone } = {};
     private modelURL = `../../static/vrm/nokoko.vrm`;
 
-    constructor(private canvas: HTMLElement) {
+    constructor(private canvas: HTMLElement, private statsDom: HTMLElement) {
         this.width = window.innerWidth;
         this.height = window.innerHeight;
         this.stats = this.createStats();
         this.camera = this.createCamera();
         this.controls = this.createControls();
         this.renderer = this.createRenderer();
-        this.avatar = new WebVRM(this.modelURL, this.scene, this.onLoad.bind(this));
+        this.avatar = new WebVRM(this.modelURL, this.onLoad.bind(this));
         canvas.appendChild(this.renderer.domElement);
         this.addScene();
         this.render();
@@ -53,6 +54,7 @@ export default class VRMScene implements BaseThreeScene {
         this.scene.add(this.createDictLight(new Vector3(-128, 256, -128)));
         this.scene.add(this.createBall(new SphereParam(64, new Vector3(64, 128, 64))));
         this.scene.add(this.createFloar());
+        this.scene.add(this.createFloar(true));
         // this.scene.add(this.createBackgroud());
     }
 
@@ -72,7 +74,7 @@ export default class VRMScene implements BaseThreeScene {
     createRenderer(): THREE.WebGLRenderer {
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(this.width, this.height);
-        renderer.setClearColor(0xaacccc, 1);
+        // renderer.setClearColor(0xaacccc, 1);
         // renderer.setPixelRatio(1);
         // renderer.gammaOutput = true;
         renderer.shadowMap.enabled = true;
@@ -110,21 +112,28 @@ export default class VRMScene implements BaseThreeScene {
         return directionalLight;
     }
 
-    createFloar(): THREE.Object3D {
-        const meshFloor = new THREE.Mesh(new THREE.BoxGeometry(600, 100, 600), new THREE.MeshLambertMaterial({ color: 0xcccccc }));
+    createFloar(wireframe: boolean = false): THREE.Object3D {
+        const material = this.material({ color: 0xcccccc, wireframe: wireframe });
+        const meshFloor = new THREE.Mesh(new THREE.BoxGeometry(600, 100, 600), new THREE.MeshLambertMaterial(material));
         meshFloor.position.y = -50;
         meshFloor.receiveShadow = true;
         return meshFloor;
     }
 
+    material(param: THREE.MeshLambertMaterialParameters | THREE.MeshStandardMaterialParameters): {} {
+        return _.merge({}, param, {
+            color: param.wireframe ? 0x00ff00 : param.color,
+            wireframe: param.wireframe || false
+        });
+    }
+
     createBall(param: SphereParam = new SphereParam()): THREE.Object3D {
         const wireframe = new THREE.Mesh(new THREE.SphereGeometry(param.radius, param.widthSegments, param.heightSegments), new THREE.MeshLambertMaterial({ color: 0x00ff00, wireframe: true }));
         wireframe.position.set(param.position.x, param.position.y, param.position.z);
-        wireframe.castShadow = true;
+        this.scene.add(wireframe);
         const ball = new THREE.Mesh(new THREE.SphereGeometry(param.radius, param.widthSegments, param.heightSegments), new THREE.MeshLambertMaterial({ color: 0x88ccff }));
         ball.position.set(param.position.x, param.position.y, param.position.z);
         ball.castShadow = true;
-        this.scene.add(wireframe);
         return ball;
     }
 
@@ -141,7 +150,7 @@ export default class VRMScene implements BaseThreeScene {
         stats.dom.style.left = "4px";
         stats.dom.style.margin = "auto";
         const debugWindow = document.body as Element;
-        debugWindow.appendChild(stats.dom);
+        this.statsDom.appendChild(stats.dom);
         return stats;
     }
 
@@ -152,6 +161,7 @@ export default class VRMScene implements BaseThreeScene {
         this.avatar.scene.scale.x = 100;
         this.avatar.scene.scale.y = 100;
         this.avatar.scene.scale.z = 100;
+        this.scene.add(this.avatar.scene);
     }
 
     render() {

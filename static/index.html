@@ -8,8 +8,22 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="stylesheet" href="" />
         <link rel="shortcut icon" href="./favicon.ico" />
+        <style>
+            body {
+                font-family: Monospace;
+                background-color: #b8e6ff /*rgb(0, 255, 0)*/;
+                color: #fff;
+                margin: 0px;
+                overflow: hidden;
+            }
+            #stat {
+                z-index: 200;
+                position: absolute;
+            }
+        </style>
     </head>
     <body>
+        <div id="stat"></div>
         <div class="stage" id="stage"></div>
         <script src="../dist/vrm.bundle.js"></script>
     </body>

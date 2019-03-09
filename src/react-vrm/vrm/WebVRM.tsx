@@ -15,8 +15,8 @@ export default class WebVRM {
     private blendShape: BlendShape;
     private isReady = false;
 
-    constructor(avatarFileURL: string, targetScene: Scene, callBackReady = () => {}) {
-        this.loadVRM(avatarFileURL, targetScene, callBackReady);
+    constructor(avatarFileURL: string, callBackReady = () => {}) {
+        this.loadVRM(avatarFileURL, callBackReady);
     }
 
     get scene(): Scene {
@@ -39,7 +39,7 @@ export default class WebVRM {
         this.blendShape.setExpression(key, value);
     }
 
-    private loadVRM(avatarFileURL: string, targetScene: Scene, callBackReady: Function) {
+    private loadVRM(avatarFileURL: string, callBackReady: Function) {
         new VRMLoader().load(avatarFileURL, (vrm: Vrm) => {
             vrm.scene.name = "VRM";
             console.log(vrm.scene);
@@ -49,8 +49,8 @@ export default class WebVRM {
             this.skeleton = new Skeleton(vrm.scene, vrm.parser.json);
             this.blendShape = new BlendShape(vrm.scene, vrm.parser.json);
             this.isReady = true;
-            //vrm.scene.castShadow = true;
-            targetScene.add(vrm.scene);
+            vrm.scene.castShadow = true;
+            //targetScene.add(vrm.scene);
             callBackReady();
         });
     }
@@ -67,6 +67,7 @@ export default class WebVRM {
             newMaterial.skinning = material.skinning;
             newMaterial.transparent = material.transparent;
             newMaterial.lights = false;
+            // newMaterial.wireframe = true;
             // newMaterial.program = material.program;
             return newMaterial;
         };
