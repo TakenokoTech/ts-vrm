@@ -1,10 +1,12 @@
 import _ from "lodash";
 import * as THREE from "three";
-import { Vector3, MeshLambertMaterialParameters, MeshStandardMaterialParameters } from "three";
+import { Vector3, MeshLambertMaterialParameters, MeshStandardMaterialParameters, Quaternion, Euler } from "three";
 import OrbitControls from "three-orbitcontrols";
+import CANNON, { IContactMaterialOptions, Shape, Vec3 } from "cannon";
 import Stats from "stats-js";
 import WebVRM from "../../react-vrm/vrm/WebVRM";
 import { SphereParam } from "./IVRMScene";
+import { CannonParam } from "./IVRMScene";
 
 interface BaseThreeScene {
     scene: THREE.Scene;
@@ -13,6 +15,7 @@ interface BaseThreeScene {
     renderer: THREE.WebGLRenderer;
     controls: OrbitControls;
     stats: Stats;
+    world: CANNON.World;
 
     createCamera(): THREE.PerspectiveCamera;
     createControls(): OrbitControls;
@@ -30,11 +33,17 @@ export default class VRMScene implements BaseThreeScene {
     public renderer: THREE.WebGLRenderer;
     public controls: OrbitControls;
     public stats: Stats;
+    public world: CANNON.World;
 
     private width = 0;
     private height = 0;
     private avaterBones: { [key: string]: THREE.Bone } = {};
     private modelURL = `../../static/vrm/nokoko.vrm`;
+
+    private floar: THREE.Object3D;
+    private floarTransfer: CANNON.Body;
+    private ball: THREE.Object3D;
+    private ballTransfer: CANNON.Body;
 
     constructor(private canvas: HTMLElement, private statsDom: HTMLElement) {
         this.width = window.innerWidth;
@@ -43,7 +52,17 @@ export default class VRMScene implements BaseThreeScene {
         this.camera = this.createCamera();
         this.controls = this.createControls();
         this.renderer = this.createRenderer();
+        this.world = this.createCannon();
         this.avatar = new WebVRM(this.modelURL, this.onLoad.bind(this));
+
+        const floar: [THREE.Object3D, CANNON.Body] = this.createFloar();
+        this.floar = floar[0];
+        this.floarTransfer = floar[1];
+
+        const ball: [THREE.Object3D, CANNON.Body] = this.createBall(new SphereParam(64, new Vector3(64, 128, 64)));
+        this.ball = ball[0];
+        this.ballTransfer = ball[1];
+
         canvas.appendChild(this.renderer.domElement);
         this.addScene();
         this.render();
@@ -52,10 +71,20 @@ export default class VRMScene implements BaseThreeScene {
     addScene() {
         this.scene.add(this.createAmbientLight());
         this.scene.add(this.createDictLight(new Vector3(-128, 256, -128)));
-        this.scene.add(this.createBall(new SphereParam(64, new Vector3(64, 128, 64))));
-        this.scene.add(this.createFloar());
-        this.scene.add(this.createFloar(true));
+        this.scene.add(this.ball);
+        this.scene.add(this.floar);
+        // this.scene.add(this.createFloar(true));
         // this.scene.add(this.createBackgroud());
+        this.world.addBody(this.floarTransfer);
+        this.world.addBody(this.ballTransfer);
+        this.addContact(this.floarTransfer.material, this.ballTransfer.material, {
+            contactEquationRelaxation: 3, // 接触式の緩和性
+            contactEquationStiffness: 10000000, // 接触式の剛性
+            friction: 0.7, //摩擦係数
+            frictionEquationRelaxation: 3, // 摩擦式の剛性
+            frictionEquationStiffness: 10000000, // 摩擦式の緩和性
+            restitution: 0.8 // 反発係数
+        });
     }
 
     createCamera(): THREE.PerspectiveCamera {
@@ -79,6 +108,15 @@ export default class VRMScene implements BaseThreeScene {
         // renderer.gammaOutput = true;
         renderer.shadowMap.enabled = true;
         return renderer;
+    }
+
+    createCannon(): CANNON.World {
+        const world = new CANNON.World();
+        world.gravity.set(0, -9.82, 0);
+        world.broadphase = new CANNON.NaiveBroadphase();
+        world.solver.iterations = 5;
+        // world.solver. = 0.1;
+        return world;
     }
 
     createLight(): THREE.Light {
@@ -112,29 +150,22 @@ export default class VRMScene implements BaseThreeScene {
         return directionalLight;
     }
 
-    createFloar(wireframe: boolean = false): THREE.Object3D {
+    createFloar(wireframe: boolean = false): [THREE.Object3D, CANNON.Body] {
         const material = this.material({ color: 0xcccccc, wireframe: wireframe });
         const meshFloor = new THREE.Mesh(new THREE.BoxGeometry(600, 100, 600), new THREE.MeshLambertMaterial(material));
         meshFloor.position.y = -50;
         meshFloor.receiveShadow = true;
-        return meshFloor;
+        const cannon = new CannonParam("floar", 0, meshFloor.position, new Quaternion(-0.1, 0, 0, 1), new CANNON.Box(new Vec3(300, 50, 300)));
+        return [meshFloor, this.addBody(cannon)];
     }
 
-    material(param: THREE.MeshLambertMaterialParameters | THREE.MeshStandardMaterialParameters): {} {
-        return _.merge({}, param, {
-            color: param.wireframe ? 0x00ff00 : param.color,
-            wireframe: param.wireframe || false
-        });
-    }
-
-    createBall(param: SphereParam = new SphereParam()): THREE.Object3D {
-        const wireframe = new THREE.Mesh(new THREE.SphereGeometry(param.radius, param.widthSegments, param.heightSegments), new THREE.MeshLambertMaterial({ color: 0x00ff00, wireframe: true }));
-        wireframe.position.set(param.position.x, param.position.y, param.position.z);
-        this.scene.add(wireframe);
-        const ball = new THREE.Mesh(new THREE.SphereGeometry(param.radius, param.widthSegments, param.heightSegments), new THREE.MeshLambertMaterial({ color: 0x88ccff }));
+    createBall(param: SphereParam = new SphereParam(), wireframe: boolean = false): [THREE.Object3D, CANNON.Body] {
+        const material = this.material({ color: 0x88ccff, wireframe: wireframe });
+        const ball = new THREE.Mesh(new THREE.SphereGeometry(param.radius, param.widthSegments, param.heightSegments), new THREE.MeshLambertMaterial(material));
         ball.position.set(param.position.x, param.position.y, param.position.z);
         ball.castShadow = true;
-        return ball;
+        const cannon = new CannonParam("ball", 1, param.position, new Quaternion(), new CANNON.Sphere(param.radius));
+        return [ball, this.addBody(cannon)];
     }
 
     createBackgroud(): THREE.Object3D {
@@ -154,6 +185,27 @@ export default class VRMScene implements BaseThreeScene {
         return stats;
     }
 
+    addContact(m1: CANNON.Material, m2: CANNON.Material, options?: CANNON.IContactMaterialOptions) {
+        var mat3 = new CANNON.ContactMaterial(m1, m2, options);
+        this.world.addContactMaterial(mat3);
+    }
+
+    addBody(param: CannonParam): CANNON.Body {
+        const body = new CANNON.Body({ mass: param.mass, material: new CANNON.Material(param.name) });
+        body.addShape(param.shape);
+        body.position.set(param.position.x, param.position.y, param.position.z);
+        body.quaternion.set(param.quaternion.x, param.quaternion.y, param.quaternion.z, param.quaternion.w);
+        body.angularVelocity.set(0, 0, 0);
+        return body;
+    }
+
+    material(param: THREE.MeshLambertMaterialParameters | THREE.MeshStandardMaterialParameters): {} {
+        return _.merge({}, param, {
+            color: param.wireframe ? 0x00ff00 : param.color,
+            wireframe: param.wireframe || false
+        });
+    }
+
     onLoad() {
         this.avatar.scene.traverse((object: any) => {
             if (object.isBone) this.avaterBones[object.name] = object;
@@ -169,5 +221,17 @@ export default class VRMScene implements BaseThreeScene {
         this.renderer.clear();
         this.renderer.render(this.scene, this.camera);
         this.stats.update();
+
+        this.world.step(1 / 10);
+
+        this.ball.position.copy(this.ballTransfer.position);
+        this.ball.quaternion.copy(this.ballTransfer.quaternion);
+        console.log("ballTransfer", this.ballTransfer.position);
+        console.log("ballTransfer", this.ballTransfer.quaternion);
+
+        this.floar.position.copy(this.floarTransfer.position);
+        this.floar.quaternion.copy(this.floarTransfer.quaternion);
+        console.log("floarTransfer", this.floarTransfer.position);
+        console.log("floarTransfer", this.floarTransfer.quaternion);
     }
 }
