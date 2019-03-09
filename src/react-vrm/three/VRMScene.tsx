@@ -2,11 +2,13 @@ import _ from "lodash";
 import * as THREE from "three";
 import { Vector3, MeshLambertMaterialParameters, MeshStandardMaterialParameters, Quaternion, Euler } from "three";
 import OrbitControls from "three-orbitcontrols";
-import CANNON, { IContactMaterialOptions, Shape, Vec3 } from "cannon";
+import CANNON from "cannon";
 import Stats from "stats-js";
 import WebVRM from "../../react-vrm/vrm/WebVRM";
 import { SphereParam } from "./IVRMScene";
+import CannonScene from "./CannonScene";
 import { CannonParam } from "./IVRMScene";
+import { BoxParam } from "./IVRMScene";
 
 interface BaseThreeScene {
     scene: THREE.Scene;
@@ -15,7 +17,6 @@ interface BaseThreeScene {
     renderer: THREE.WebGLRenderer;
     controls: OrbitControls;
     stats: Stats;
-    world: CANNON.World;
 
     createCamera(): THREE.PerspectiveCamera;
     createControls(): OrbitControls;
@@ -33,7 +34,8 @@ export default class VRMScene implements BaseThreeScene {
     public renderer: THREE.WebGLRenderer;
     public controls: OrbitControls;
     public stats: Stats;
-    public world: CANNON.World;
+
+    private cannon: CannonScene = new CannonScene();
 
     private width = 0;
     private height = 0;
@@ -41,9 +43,8 @@ export default class VRMScene implements BaseThreeScene {
     private modelURL = `../../static/vrm/nokoko.vrm`;
 
     private floar: THREE.Object3D;
-    private floarTransfer: CANNON.Body;
     private ball: THREE.Object3D;
-    private ballTransfer: CANNON.Body;
+    private objList: THREE.Object3D[] = [];
 
     constructor(private canvas: HTMLElement, private statsDom: HTMLElement) {
         this.width = window.innerWidth;
@@ -52,19 +53,26 @@ export default class VRMScene implements BaseThreeScene {
         this.camera = this.createCamera();
         this.controls = this.createControls();
         this.renderer = this.createRenderer();
-        this.world = this.createCannon();
         this.avatar = new WebVRM(this.modelURL, this.onLoad.bind(this));
 
-        const floar: [THREE.Object3D, CANNON.Body] = this.createFloar();
-        this.floar = floar[0];
-        this.floarTransfer = floar[1];
+        const floar = new BoxParam("floar", 600, 100, 600, new Vector3(0, -50, 0), new Quaternion(0, 0, 0, 1));
+        this.floar = this.createFloar(floar);
 
-        const ball: [THREE.Object3D, CANNON.Body] = this.createBall(new SphereParam(64, new Vector3(64, 128, 64)));
-        this.ball = ball[0];
-        this.ballTransfer = ball[1];
+        this.objList.push(this.createFloar(new BoxParam("floar1", 100, 600, 600, new Vector3(300, 200, 0), new Quaternion(0, 0, 0, 1), true)));
+        this.objList.push(this.createFloar(new BoxParam("floar2", 600, 600, 100, new Vector3(0, 200, 300), new Quaternion(0, 0, 0, 1), false)));
+        this.objList.push(this.createFloar(new BoxParam("floar3", 100, 600, 600, new Vector3(-300, 200, 0), new Quaternion(0, 0, 0, 1), false)));
+        this.objList.push(this.createFloar(new BoxParam("floar4", 600, 600, 100, new Vector3(0, 200, -300), new Quaternion(0, 0, 0, 1), true)));
+
+        this.ball = this.createBall(new SphereParam("ball", 64, new Vector3(64, 128, 64)));
+        for (let i = 0; i < 50; i++) {
+            this.objList.push(this.createBall(new SphereParam(`ball_${i}`, 64, new Vector3(2 * i, 128 + 128 * i, 2 * i))));
+        }
 
         canvas.appendChild(this.renderer.domElement);
+
         this.addScene();
+        this.cannon.addScene();
+
         this.render();
     }
 
@@ -73,18 +81,9 @@ export default class VRMScene implements BaseThreeScene {
         this.scene.add(this.createDictLight(new Vector3(-128, 256, -128)));
         this.scene.add(this.ball);
         this.scene.add(this.floar);
+        this.objList.forEach(element => this.scene.add(element));
         // this.scene.add(this.createFloar(true));
         // this.scene.add(this.createBackgroud());
-        this.world.addBody(this.floarTransfer);
-        this.world.addBody(this.ballTransfer);
-        this.addContact(this.floarTransfer.material, this.ballTransfer.material, {
-            contactEquationRelaxation: 3, // 接触式の緩和性
-            contactEquationStiffness: 10000000, // 接触式の剛性
-            friction: 0.7, //摩擦係数
-            frictionEquationRelaxation: 3, // 摩擦式の剛性
-            frictionEquationStiffness: 10000000, // 摩擦式の緩和性
-            restitution: 0.8 // 反発係数
-        });
     }
 
     createCamera(): THREE.PerspectiveCamera {
@@ -108,15 +107,6 @@ export default class VRMScene implements BaseThreeScene {
         // renderer.gammaOutput = true;
         renderer.shadowMap.enabled = true;
         return renderer;
-    }
-
-    createCannon(): CANNON.World {
-        const world = new CANNON.World();
-        world.gravity.set(0, -9.82, 0);
-        world.broadphase = new CANNON.NaiveBroadphase();
-        world.solver.iterations = 5;
-        // world.solver. = 0.1;
-        return world;
     }
 
     createLight(): THREE.Light {
@@ -150,22 +140,24 @@ export default class VRMScene implements BaseThreeScene {
         return directionalLight;
     }
 
-    createFloar(wireframe: boolean = false): [THREE.Object3D, CANNON.Body] {
-        const material = this.material({ color: 0xcccccc, wireframe: wireframe });
-        const meshFloor = new THREE.Mesh(new THREE.BoxGeometry(600, 100, 600), new THREE.MeshLambertMaterial(material));
-        meshFloor.position.y = -50;
+    createFloar(param: BoxParam): THREE.Object3D {
+        const material = this.material({ color: 0xcccccc, wireframe: param.wireframe });
+        const meshFloor = new THREE.Mesh(new THREE.BoxGeometry(param.width, param.height, param.depth), new THREE.MeshLambertMaterial(material));
+        meshFloor.position.set(param.position.x, param.position.y, param.position.z);
         meshFloor.receiveShadow = true;
-        const cannon = new CannonParam("floar", 0, meshFloor.position, new Quaternion(-0.1, 0, 0, 1), new CANNON.Box(new Vec3(300, 50, 300)));
-        return [meshFloor, this.addBody(cannon)];
+        const cannon = new CannonParam(param.name, 0, param.position, param.quaternion, new CANNON.Box(new CANNON.Vec3(param.width / 2, param.height / 2, param.depth / 2)));
+        this.cannon.addRigidbody(cannon, meshFloor, false);
+        return meshFloor;
     }
 
-    createBall(param: SphereParam = new SphereParam(), wireframe: boolean = false): [THREE.Object3D, CANNON.Body] {
-        const material = this.material({ color: 0x88ccff, wireframe: wireframe });
-        const ball = new THREE.Mesh(new THREE.SphereGeometry(param.radius, param.widthSegments, param.heightSegments), new THREE.MeshLambertMaterial(material));
+    createBall(param: SphereParam): THREE.Object3D {
+        const material = this.material({ color: 0x88ccff, wireframe: param.wireframe });
+        const ball = new THREE.Mesh(new THREE.SphereGeometry(param.radius, param.radius, param.radius), new THREE.MeshLambertMaterial(material));
         ball.position.set(param.position.x, param.position.y, param.position.z);
         ball.castShadow = true;
-        const cannon = new CannonParam("ball", 1, param.position, new Quaternion(), new CANNON.Sphere(param.radius));
-        return [ball, this.addBody(cannon)];
+        const cannon = new CannonParam(param.name, 1, param.position, new Quaternion(), new CANNON.Sphere(param.radius));
+        this.cannon.addRigidbody(cannon, ball);
+        return ball;
     }
 
     createBackgroud(): THREE.Object3D {
@@ -183,20 +175,6 @@ export default class VRMScene implements BaseThreeScene {
         const debugWindow = document.body as Element;
         this.statsDom.appendChild(stats.dom);
         return stats;
-    }
-
-    addContact(m1: CANNON.Material, m2: CANNON.Material, options?: CANNON.IContactMaterialOptions) {
-        var mat3 = new CANNON.ContactMaterial(m1, m2, options);
-        this.world.addContactMaterial(mat3);
-    }
-
-    addBody(param: CannonParam): CANNON.Body {
-        const body = new CANNON.Body({ mass: param.mass, material: new CANNON.Material(param.name) });
-        body.addShape(param.shape);
-        body.position.set(param.position.x, param.position.y, param.position.z);
-        body.quaternion.set(param.quaternion.x, param.quaternion.y, param.quaternion.z, param.quaternion.w);
-        body.angularVelocity.set(0, 0, 0);
-        return body;
     }
 
     material(param: THREE.MeshLambertMaterialParameters | THREE.MeshStandardMaterialParameters): {} {
@@ -220,18 +198,7 @@ export default class VRMScene implements BaseThreeScene {
         requestAnimationFrame(this.render.bind(this));
         this.renderer.clear();
         this.renderer.render(this.scene, this.camera);
+        this.cannon.render();
         this.stats.update();
-
-        this.world.step(1 / 10);
-
-        this.ball.position.copy(this.ballTransfer.position);
-        this.ball.quaternion.copy(this.ballTransfer.quaternion);
-        console.log("ballTransfer", this.ballTransfer.position);
-        console.log("ballTransfer", this.ballTransfer.quaternion);
-
-        this.floar.position.copy(this.floarTransfer.position);
-        this.floar.quaternion.copy(this.floarTransfer.quaternion);
-        console.log("floarTransfer", this.floarTransfer.position);
-        console.log("floarTransfer", this.floarTransfer.quaternion);
     }
 }
