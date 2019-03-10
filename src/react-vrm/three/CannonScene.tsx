@@ -1,5 +1,6 @@
 import CANNON, { IContactMaterialOptions, Shape, Vec3 } from "cannon";
-import { CannonParam } from "./IVRMScene";
+import { ShapeType } from "./ICannonScene";
+import { CannonParam } from "./ICannonScene";
 
 interface Rigitbody {
     enable: boolean;
@@ -23,18 +24,17 @@ export default class CannonScene implements BaseCannonScene {
     addScene() {
         Object.keys(this.map).forEach(key1 => {
             this.world.addBody(this.map[key1].body);
-
             Object.keys(this.map).forEach(key2 => {
                 if (key1 == key2) {
                     return;
                 }
                 this.addContact(this.map[key1].body.material, this.map[key2].body.material, {
-                    contactEquationRelaxation: 3, // 接触式の緩和性
-                    contactEquationStiffness: 10000000, // 接触式の剛性
-                    friction: 0.7, //摩擦係数
-                    frictionEquationRelaxation: 3, // 摩擦式の剛性
-                    frictionEquationStiffness: 10000000, // 摩擦式の緩和性
-                    restitution: 0.8 // 反発係数
+                    friction: 0.001, //摩擦係数
+                    restitution: 0 // 反発係数
+                    // contactEquationRelaxation: 3, // 接触式の緩和性
+                    // contactEquationStiffness: 10000000, // 接触式の剛性
+                    // frictionEquationRelaxation: 3, // 摩擦式の剛性
+                    // frictionEquationStiffness: 10000000, // 摩擦式の緩和性
                 });
             });
         });
@@ -59,7 +59,7 @@ export default class CannonScene implements BaseCannonScene {
                 this.map[key].target.visible = false;
                 return;
             }
-            //console.log(key, this.map[key].body.position, this.map[key].body.quaternion);
+            // console.log(key, this.map[key].body.position, this.map[key].body.quaternion);
             this.map[key].target.position.copy(this.map[key].body.position);
             this.map[key].target.quaternion.copy(this.map[key].body.quaternion);
         });

@@ -1,4 +1,5 @@
 import _ from "lodash";
+import * as THREE from "three";
 import { Object3D, Scene, Material, MeshBasicMaterial } from "three";
 import { Vrm } from "../../schema/UniVRM/vrm.schema";
 import BlendShape from "./BlendShape";
@@ -50,7 +51,8 @@ export default class WebVRM {
             this.blendShape = new BlendShape(vrm.scene, vrm.parser.json);
             this.isReady = true;
             vrm.scene.castShadow = true;
-            //targetScene.add(vrm.scene);
+            // targetScene.add(vrm.scene);
+            // vrm.scene.traverse(this.rigid);
             callBackReady();
         });
     }
