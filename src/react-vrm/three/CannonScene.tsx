@@ -1,6 +1,6 @@
 import CANNON, { IContactMaterialOptions, Shape, Vec3 } from "cannon";
-import { ShapeType } from "./ICannonScene";
-import { CannonParam } from "./ICannonScene";
+import { ShapeType } from "./CannonSceneInterface";
+import { CannonParam } from "./CannonSceneInterface";
 
 interface Rigitbody {
     enable: boolean;

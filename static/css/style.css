@@ -1,0 +1,33 @@
+body {
+    /* font-family: Monospace; */
+    background-color: #b8e6ff /*rgb(0, 255, 0)*/;
+    color: #fff;
+    margin: 0px;
+    overflow: hidden;
+}
+
+#stat {
+    z-index: 200;
+    position: absolute;
+}
+
+#hierarchy {
+    z-index: 200;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background-color: #000c;
+    padding: 16px;
+    overflow: scroll;
+    overflow-x: hidden;
+    max-height: 600px;
+}
+
+#hierarchy button {
+    height: 48px;
+    margin: 4px;
+}
+
+#hierarchy .object3d {
+    width: 200px;
+}

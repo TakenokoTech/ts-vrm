@@ -5,10 +5,11 @@ import OrbitControls from "three-orbitcontrols";
 import CANNON from "cannon";
 import Stats from "stats-js";
 import WebVRM from "../../react-vrm/vrm/WebVRM";
-import { SphereParam } from "./IVRMScene";
+import { SphereParam } from "./VRMSceneInterface";
 import CannonScene from "./CannonScene";
-import { BoxParam } from "./IVRMScene";
-import { CannonParam } from "./ICannonScene";
+import { BoxParam } from "./VRMSceneInterface";
+import { CannonParam } from "./CannonSceneInterface";
+import { DomManager } from "..";
 
 interface BaseThreeScene {
     scene: THREE.Scene;
@@ -42,11 +43,13 @@ export default class VRMScene implements BaseThreeScene {
     private avaterBones: { [key: string]: THREE.Bone } = {};
     private modelURL = `../../static/vrm/nokoko.vrm`;
 
-    private floar: THREE.Object3D;
     private ball: THREE.Object3D;
     private objList: THREE.Object3D[] = [];
 
-    constructor(private canvas: HTMLElement, private statsDom: HTMLElement) {
+    constructor(private domManager: DomManager) {
+        this.addScene = this.addScene.bind(this);
+        this.render = this.render.bind(this);
+
         this.width = window.innerWidth;
         this.height = window.innerHeight;
         this.stats = this.createStats();
@@ -55,17 +58,14 @@ export default class VRMScene implements BaseThreeScene {
         this.renderer = this.createRenderer();
         this.avatar = new WebVRM(this.modelURL, this.onLoad.bind(this));
 
-        const floar = new BoxParam("floar", 800, 100, 800, new Vector3(0, -50, 0), new Quaternion(0, 0, 0, 1));
-        this.floar = this.createFloar(floar);
-
+        this.objList.push(this.createFloar(new BoxParam("floar", 800, 100, 800, new Vector3(0, -50, 0), new Quaternion(0, 0, 0, 1), false)));
         this.objList.push(this.createFloar(new BoxParam("floar1", 100, 600, 900, new Vector3(400, 200, 0), new Quaternion(0, 0, 0, 1), true)));
         this.objList.push(this.createFloar(new BoxParam("floar2", 900, 600, 100, new Vector3(0, 200, 400), new Quaternion(0, 0, 0, 1), false)));
         this.objList.push(this.createFloar(new BoxParam("floar3", 100, 600, 900, new Vector3(-400, 200, 0), new Quaternion(0, 0, 0, 1), false)));
         this.objList.push(this.createFloar(new BoxParam("floar4", 900, 600, 100, new Vector3(0, 200, -400), new Quaternion(0, 0, 0, 1), true)));
 
         this.ball = this.createBall(new SphereParam("ball", 64, new Vector3(64, 128, 64)));
-
-        canvas.appendChild(this.renderer.domElement);
+        this.domManager.stageDom.appendChild(this.renderer.domElement);
 
         this.addScene();
         this.render();
@@ -74,8 +74,7 @@ export default class VRMScene implements BaseThreeScene {
     addScene() {
         this.scene.add(this.createAmbientLight());
         this.scene.add(this.createDictLight(new Vector3(-128, 256, -128)));
-        this.scene.add(this.ball);
-        this.scene.add(this.floar);
+        // this.scene.add(this.ball);
         this.objList.forEach(element => this.scene.add(element));
         // this.scene.add(this.createFloar(true));
         // this.scene.add(this.createBackgroud());
@@ -83,13 +82,13 @@ export default class VRMScene implements BaseThreeScene {
 
     createCamera(): THREE.PerspectiveCamera {
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.25, 50000);
-        camera.position.set(300, 1000, -1000);
+        camera.position.set(100, 150, -300);
         return camera;
     }
 
     createControls(): OrbitControls {
-        const controls = new OrbitControls(this.camera, this.canvas);
-        controls.target.set(0, 0.75, 0);
+        const controls = new OrbitControls(this.camera, this.domManager.stageDom);
+        controls.target.set(0, 75, 0);
         controls.update();
         return controls;
     }
@@ -106,6 +105,7 @@ export default class VRMScene implements BaseThreeScene {
 
     createLight(): THREE.Light {
         const light = new THREE.PointLight(0xffffff, 1.6);
+        light.name = "point light";
         light.position.set(0, 256, -100);
         light.shadowMapWidth = 2048;
         light.shadowMapHeight = 2048;
@@ -116,12 +116,14 @@ export default class VRMScene implements BaseThreeScene {
 
     createAmbientLight(): THREE.Light {
         const ambient = new THREE.AmbientLight(0x333333);
+        ambient.name = "ambient light";
         return ambient;
     }
 
     createDictLight(position: Vector3 = new Vector3(0, 256, -256)): THREE.Light | THREE.Object3D {
         const FIELD_SIZE = position.y;
         const directionalLight = new THREE.DirectionalLight(0xaaaaaa, 1.6);
+        directionalLight.name = "Directional Light";
         directionalLight.position.set(position.x, position.y, position.z);
         directionalLight.shadow.camera.near = 0; //0.5;
         directionalLight.shadow.camera.top = FIELD_SIZE;
@@ -131,13 +133,20 @@ export default class VRMScene implements BaseThreeScene {
         directionalLight.shadow.mapSize.width = 4096;
         directionalLight.shadow.mapSize.height = 4096;
         directionalLight.castShadow = true;
-        this.scene.add(new THREE.DirectionalLightHelper(directionalLight, 5, 0xff0000));
+        this.createDirectionalLightHelper(directionalLight);
         return directionalLight;
+    }
+
+    createDirectionalLightHelper(directionalLight: THREE.DirectionalLight) {
+        const light = new THREE.DirectionalLightHelper(directionalLight, 5, 0xff0000);
+        light.name = "Directional Light Helper";
+        this.scene.add(light);
     }
 
     createFloar(param: BoxParam): THREE.Object3D {
         const material = this.material({ color: 0xcccccc, wireframe: param.wireframe });
         const meshFloor = new THREE.Mesh(new THREE.BoxGeometry(param.width, param.height, param.depth), new THREE.MeshLambertMaterial(material));
+        meshFloor.name = param.name;
         meshFloor.position.set(param.position.x, param.position.y, param.position.z);
         meshFloor.receiveShadow = true;
         const cannon = new CannonParam(param.name, 0, param.position, param.quaternion, new CANNON.Box(new CANNON.Vec3(param.width / 2, param.height / 2, param.depth / 2)));
@@ -148,6 +157,7 @@ export default class VRMScene implements BaseThreeScene {
     createBall(param: SphereParam): THREE.Object3D {
         const material = this.material({ color: 0x88ccff, wireframe: param.wireframe });
         const ball = new THREE.Mesh(new THREE.SphereGeometry(param.radius, param.radius, param.radius), new THREE.MeshLambertMaterial(material));
+        ball.name = param.name;
         ball.position.set(param.position.x, param.position.y, param.position.z);
         ball.castShadow = true;
         const cannon = new CannonParam(param.name, 1, param.position, new Quaternion(), new CANNON.Sphere(param.radius));
@@ -168,7 +178,7 @@ export default class VRMScene implements BaseThreeScene {
         stats.dom.style.left = "4px";
         stats.dom.style.margin = "auto";
         const debugWindow = document.body as Element;
-        this.statsDom.appendChild(stats.dom);
+        this.domManager.statDom.appendChild(stats.dom);
         return stats;
     }
 
@@ -196,7 +206,7 @@ export default class VRMScene implements BaseThreeScene {
             }
         });
 
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < 20; i++) {
             const rand = Math.random() * 64;
             this.objList.push(this.createBall(new SphereParam(`ball_${i}`, 48, new Vector3(rand, 800 + 128 * i, rand))));
         }
@@ -208,6 +218,7 @@ export default class VRMScene implements BaseThreeScene {
         this.scene.add(this.avatar.scene);
 
         this.cannon.addScene();
+        this.domManager.render();
     }
 
     render() {
