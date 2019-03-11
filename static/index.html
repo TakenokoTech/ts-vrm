@@ -18,10 +18,26 @@
     </head>
     <body>
         <div id="stat"></div>
-        <div class="stage" id="stage"></div>
-        <div class="hierarchy" id="hierarchy">
+
+        <div id="stage" class="stage"></div>
+
+        <div id="hierarchy" class="hierarchy">
+            <div id="hierarchy_header" class="header">
+                <div id="hierarchy_minimize" class="header_minimize"><i class="material-icons">minimize</i></div>
+                <div id="hierarchy_close" class="header_close"><i class="material-icons">close</i></div>
+            </div>
+            <div id="hierarchy_contents" class="contents"></div>
             <!-- <div><button>aaaaaaaaaaa</button></div> -->
         </div>
+
+        <div id="inspector" class="inspector">
+            <div id="inspector_header" class="header">
+                <div id="inspector_minimize" class="header_minimize"><i class="material-icons">minimize</i></div>
+                <div id="inspector_close" class="header_close"><i class="material-icons">close</i></div>
+            </div>
+            <div id="inspector_contents" class="contents"></div>
+        </div>
+
         <script src="../dist/vrm.bundle.js"></script>
     </body>
 </html>

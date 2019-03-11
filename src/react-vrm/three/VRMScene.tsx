@@ -206,7 +206,7 @@ export default class VRMScene implements BaseThreeScene {
             }
         });
 
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < 2; i++) {
             const rand = Math.random() * 64;
             this.objList.push(this.createBall(new SphereParam(`ball_${i}`, 48, new Vector3(rand, 800 + 128 * i, rand))));
         }
