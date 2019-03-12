@@ -11,7 +11,7 @@ export default class Draggable {
     }
 
     down(event: Event | TouchEvent): any {
-        console.log("down");
+        // console.log("down");
         this.element.classList.add("drag");
         const e = event.type === "mousedown" ? event : event.changedTouches[0];
         this.x = e.pageX - this.parent.offsetLeft;
@@ -23,7 +23,7 @@ export default class Draggable {
     }
 
     move(event: Event) {
-        console.log("move");
+        // console.log("move");
         const e = event.type === "mousemove" ? event : event.changedTouches[0];
         e.preventDefault();
         this.parent.style.top = e.pageY - this.y + "px";
@@ -35,7 +35,7 @@ export default class Draggable {
     }
 
     up(event: Event) {
-        console.log("up");
+        // console.log("up");
         this.element.classList.remove("drag");
         document.body.removeEventListener("mousemove", this.move, false);
         document.body.removeEventListener("touchmove", this.move, false);

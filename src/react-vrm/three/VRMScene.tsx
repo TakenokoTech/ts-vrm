@@ -89,6 +89,7 @@ export default class VRMScene implements BaseThreeScene {
     createControls(): OrbitControls {
         const controls = new OrbitControls(this.camera, this.domManager.stageDom);
         controls.target.set(0, 75, 0);
+        controls.enableKeys = false;
         controls.update();
         return controls;
     }
@@ -195,7 +196,7 @@ export default class VRMScene implements BaseThreeScene {
                 this.avaterBones[object.name] = object;
             }
             if (object.position.y > 0.5) {
-                console.log(object.name, object.position);
+                // console.log(object.name, object.position);
                 const material = { color: 0xff0000, wireframe: true };
                 const ball = new THREE.Mesh(new THREE.SphereGeometry(0.6 * 100, 8, 8), new THREE.MeshLambertMaterial(material));
                 ball.position.set(object.position.x * 100, object.position.y * 100, object.position.z * 100);

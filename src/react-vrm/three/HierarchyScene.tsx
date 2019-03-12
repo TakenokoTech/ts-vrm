@@ -16,10 +16,11 @@ export class HierarchyScene {
         while (this.manager.hierarchyDom.firstChild) {
             this.manager.hierarchyDom.removeChild(this.manager.hierarchyDom.firstChild);
         }
-        for (const obj of this.manager.vrmScene.scene.children) {
+        for (const index in this.manager.vrmScene.scene.children) {
+            const obj = this.manager.vrmScene.scene.children[index];
             const div = document.createElement("div");
 
-            if (obj.visible) {
+            if (obj.visible != undefined) {
                 const button = document.createElement("button");
                 button.className = (obj.visible ? "btn btn-light" : "btn btn-outline-light") + " object3d";
                 button.innerText = obj.name;
@@ -27,6 +28,8 @@ export class HierarchyScene {
                     console.log("click");
                     obj.visible = !obj.visible;
                     button.className = (obj.visible ? "btn btn-light" : "btn btn-outline-light") + " object3d";
+                    this.manager.selectNumber = index;
+                    this.manager.render();
                 });
                 div.appendChild(button);
             }

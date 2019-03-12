@@ -1,7 +1,6 @@
 body {
     /* font-family: Monospace; */
-    background-color: #b8e6ff/*rgb(0, 255, 0)*/
-    ;
+    background-color: #b8e6ff /*rgb(0, 255, 0)*/;
     color: #fff;
     margin: 0px;
     overflow: hidden;
@@ -23,6 +22,12 @@ body {
     background-color: black;
     user-select: none;
     cursor: move;
+}
+
+.header .header_title {
+    width: 80px;
+    padding: 0 16px;
+    float: inline-start;
 }
 
 .header .header_close {
@@ -85,4 +90,17 @@ body {
     right: 8px;
     max-width: 600px;
     background-color: #000c;
+}
+
+#inspector .inspecter_obj_name {
+    font-size: 1.2em;
+    padding: 4px 0;
+}
+
+#inspector .input-group {
+    padding: 4px 0;
+}
+
+#inspector .input-group-text {
+    width: 128px;
 }
