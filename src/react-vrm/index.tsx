@@ -3,17 +3,22 @@ import VRMScene from "./three/VRMScene";
 import { HierarchyScene } from "./three/HierarchyScene";
 import Draggable from "../dom/Draggable";
 import { InspectorScene } from "./three/InspectorScene";
+import { VRMLoaderScene } from "./three/VRMLoaderScene";
 
 export interface DomManager {
     stageDom: HTMLElement;
     hierarchyDom: HTMLElement;
     inspectorDom: HTMLElement;
+    vrmloaderDom: HTMLElement;
     statDom: HTMLElement;
     vrmScene: VRMScene;
     hierarchyScene: HierarchyScene;
     inspectorScene: InspectorScene;
+    vrmloaderScene: VRMLoaderScene;
+    modelURL: string;
     selectNumber: number;
     render: () => void;
+    loadVRM: null | (() => void);
 }
 
 class main {
@@ -25,12 +30,15 @@ class main {
         const stage: HTMLElement = document.getElementById("stage") || new HTMLElement();
         const hierarchy: HTMLElement = document.getElementById("hierarchy_contents") || new HTMLElement();
         const inspector: HTMLElement = document.getElementById("inspector_contents") || new HTMLElement();
+        const vrmloader: HTMLElement = document.getElementById("vrmloader_contents") || new HTMLElement();
         const stat: HTMLElement = document.getElementById("stat") || new HTMLElement();
 
-        this.domManager = { stageDom: stage, hierarchyDom: hierarchy, inspectorDom: inspector, statDom: stat, vrmScene: null, hierarchyScene: null, inspectorScene: null, render: this.render, selectNumber: 0 };
+        this.domManager = { stageDom: stage, hierarchyDom: hierarchy, inspectorDom: inspector, vrmloaderDom: vrmloader, statDom: stat, vrmScene: null, hierarchyScene: null, inspectorScene: null, vrmloaderScene: null, modelURL: "", render: this.render, loadVRM: null, selectNumber: 0 };
+        this.domManager.modelURL = `../../static/vrm/nokoko.vrm`;
         this.domManager.vrmScene = new VRMScene(this.domManager);
         this.domManager.hierarchyScene = new HierarchyScene(this.domManager);
         this.domManager.inspectorScene = new InspectorScene(this.domManager);
+        this.domManager.vrmloaderScene = new VRMLoaderScene(this.domManager);
 
         this.render();
         this.draggable();
@@ -44,12 +52,17 @@ class main {
         var inspector_p = document.getElementById("inspector");
         var inspector_h = document.getElementById("inspector_header");
         inspector_p && inspector_h && new Draggable(inspector_p, inspector_h);
+
+        var vrmloader_p = document.getElementById("vrmloader");
+        var vrmloader_h = document.getElementById("vrmloader_header");
+        vrmloader_p && vrmloader_h && new Draggable(vrmloader_p, vrmloader_h);
     }
 
     render() {
         // vrmScene.render();
         this.domManager.hierarchyScene.render(this.domManager);
         this.domManager.inspectorScene.render(this.domManager);
+        this.domManager.vrmloaderScene.render(this.domManager);
     }
 }
 

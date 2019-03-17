@@ -12,7 +12,7 @@ export class HierarchyScene {
 
     render(manager: HierarchyManager) {
         this.manager = manager;
-        console.log(this.manager.vrmScene.scene);
+        // console.log(this.manager.vrmScene.scene);
         while (this.manager.hierarchyDom.firstChild) {
             this.manager.hierarchyDom.removeChild(this.manager.hierarchyDom.firstChild);
         }
@@ -20,24 +20,36 @@ export class HierarchyScene {
             const obj = this.manager.vrmScene.scene.children[index];
             const div = document.createElement("div");
 
-            if (obj.visible != undefined) {
+            if (obj != undefined) {
                 const button = document.createElement("button");
                 button.className = (obj.visible ? "btn btn-light" : "btn btn-outline-light") + " object3d";
                 button.innerText = obj.name;
                 button.addEventListener("click", () => {
                     console.log("click");
-                    obj.visible = !obj.visible;
-                    button.className = (obj.visible ? "btn btn-light" : "btn btn-outline-light") + " object3d";
+                    //obj.visible = !obj.visible;
+                    //button.className = (obj.visible ? "btn btn-light" : "btn btn-outline-light") + " object3d";
                     this.manager.selectNumber = index;
                     this.manager.render();
                 });
                 div.appendChild(button);
             }
 
+            if (obj.visible != undefined) {
+                const iconButton = document.createElement("button");
+                iconButton.className = obj.visible ? "btn btn-light" : "btn btn-outline-light";
+                iconButton.appendChild(this.createIcon("visibility"));
+                iconButton.addEventListener("click", () => {
+                    console.log("click");
+                    obj.visible = !obj.visible;
+                    iconButton.className = obj.visible ? "btn btn-light" : "btn btn-outline-light";
+                });
+                div.appendChild(iconButton);
+            }
+
             if (obj.material) {
                 const iconButton = document.createElement("button");
                 iconButton.className = obj.material.wireframe ? "btn btn-light" : "btn btn-outline-light";
-                iconButton.appendChild(this.createIcon());
+                iconButton.appendChild(this.createIcon("fullscreen"));
                 iconButton.addEventListener("click", () => {
                     console.log("click");
                     obj.material.wireframe = !obj.material.wireframe;
@@ -50,10 +62,10 @@ export class HierarchyScene {
         }
     }
 
-    createIcon() {
+    createIcon(str: string) {
         const icon = document.createElement("i");
         icon.className = "material-icons";
-        icon.innerHTML = "fullscreen";
+        icon.innerHTML = str;
         return icon;
     }
 }

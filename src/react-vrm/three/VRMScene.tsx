@@ -41,9 +41,8 @@ export default class VRMScene implements BaseThreeScene {
     private width = 0;
     private height = 0;
     private avaterBones: { [key: string]: THREE.Bone } = {};
-    private modelURL = `../../static/vrm/nokoko.vrm`;
 
-    private ball: THREE.Object3D;
+    private ballCount: number = 0;
     private objList: THREE.Object3D[] = [];
 
     constructor(private domManager: DomManager) {
@@ -56,7 +55,6 @@ export default class VRMScene implements BaseThreeScene {
         this.camera = this.createCamera();
         this.controls = this.createControls();
         this.renderer = this.createRenderer();
-        this.avatar = new WebVRM(this.modelURL, this.onLoad.bind(this));
 
         this.objList.push(this.createFloar(new BoxParam("floar", 800, 100, 800, new Vector3(0, -50, 0), new Quaternion(0, 0, 0, 1), false)));
         this.objList.push(this.createFloar(new BoxParam("floar1", 100, 600, 900, new Vector3(400, 200, 0), new Quaternion(0, 0, 0, 1), true)));
@@ -66,7 +64,9 @@ export default class VRMScene implements BaseThreeScene {
 
         this.ball = this.createBall(new SphereParam("ball", 64, new Vector3(64, 128, 64)));
         this.domManager.stageDom.appendChild(this.renderer.domElement);
+        this.domManager.loadVRM = this.loadVRM;
 
+        this.loadVRM(this.domManager.modelURL);
         this.addScene();
         this.render();
     }
@@ -78,6 +78,18 @@ export default class VRMScene implements BaseThreeScene {
         this.objList.forEach(element => this.scene.add(element));
         // this.scene.add(this.createFloar(true));
         // this.scene.add(this.createBackgroud());
+    }
+
+    loadVRM(url: string) {
+        const obj = this.scene.getObjectByName("VRM");
+        obj && this.scene.remove(obj);
+        this.avatar = new WebVRM(url, this.onLoad.bind(this));
+
+        for (let i = this.ballCount, last = this.ballCount + 5; i < last; i++, this.ballCount++) {
+            const rand = Math.random() * 64;
+            this.objList.push(this.createBall(new SphereParam(`ball_${i}`, 48, new Vector3(rand, 800 + 128 * i, rand))));
+        }
+        this.objList.forEach(element => this.scene.add(element));
     }
 
     createCamera(): THREE.PerspectiveCamera {
@@ -117,7 +129,7 @@ export default class VRMScene implements BaseThreeScene {
 
     createAmbientLight(): THREE.Light {
         const ambient = new THREE.AmbientLight(0x333333);
-        ambient.name = "ambient light";
+        ambient.name = "Ambient Light";
         return ambient;
     }
 
@@ -206,12 +218,6 @@ export default class VRMScene implements BaseThreeScene {
                 this.cannon.addRigidbody(cannon, ball /*this.avatar.scene*/);
             }
         });
-
-        for (let i = 0; i < 2; i++) {
-            const rand = Math.random() * 64;
-            this.objList.push(this.createBall(new SphereParam(`ball_${i}`, 48, new Vector3(rand, 800 + 128 * i, rand))));
-        }
-        this.objList.forEach(element => this.scene.add(element));
 
         this.avatar.scene.scale.x = 100;
         this.avatar.scene.scale.y = 100;
