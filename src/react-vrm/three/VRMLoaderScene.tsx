@@ -17,11 +17,12 @@ export class VRMLoaderScene {
         while (this.manager.vrmloaderDom.firstChild) {
             this.manager.vrmloaderDom.removeChild(this.manager.vrmloaderDom.firstChild);
         }
-        this.manager.vrmloaderDom.appendChild(this.createUrlForm("http://127.0.0.1:8887/static/vrm/panda.vrm"));
-        this.manager.vrmloaderDom.appendChild(this.createUrlForm("http://127.0.0.1:8887/static/vrm/AliciaSolid.vrm"));
+        this.manager.vrmloaderDom.appendChild(this.createUrlForm("http://127.0.0.1:8887/static/vrm/nokoko.vrm", "nokoko"));
+        this.manager.vrmloaderDom.appendChild(this.createUrlForm("http://127.0.0.1:8887/static/vrm/panda.vrm", "panda"));
+        this.manager.vrmloaderDom.appendChild(this.createUrlForm("http://127.0.0.1:8887/static/vrm/AliciaSolid.vrm", "alicia"));
     }
 
-    createUrlForm(defaultURL = "") {
+    createUrlForm(defaultURL = "", name = "") {
         const input = document.createElement("div");
         input.className = "input-group";
 
@@ -49,7 +50,10 @@ export class VRMLoaderScene {
         button.id = "";
         button.innerHTML = "load";
         button.className = "btn btn-light";
-        button.onclick = () => this.manager.vrmScene.loadVRM(form.value);
+        button.onclick = () => {
+            this.manager.modelName = name;
+            this.manager.vrmScene.loadVRM(form.value);
+        };
         append.appendChild(button);
 
         return input;

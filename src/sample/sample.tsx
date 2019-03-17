@@ -116,8 +116,10 @@ function init(targetCanvas: Element) {
                 if (object.isBone) avaterBones[object.name] = object;
             });
             // anime();
+
+            scene.add(avatar.scene);
         };
-        avatar = new WebVRM(modelURL, scene, callback);
+        avatar = new WebVRM(modelURL, callback);
     };
 
     const anime = () => {

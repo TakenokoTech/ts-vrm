@@ -234,5 +234,6 @@ export default class VRMScene implements BaseThreeScene {
         this.renderer.render(this.scene, this.camera);
         this.cannon.render();
         this.stats.update();
+        this.domManager.updateFrame();
     }
 }
