@@ -4,7 +4,7 @@ import GLTFLoader from "three-gltf-loader";
 import { GLTF, Scene, AnimationClip } from "three";
 import Stats from "stats-js";
 import OrbitControls from "three-orbitcontrols";
-import WebVRM from "../react-vrm/vrm/WebVRM";
+import WebVRM from "../ts-vrm/vrm/WebVRM";
 import sampleAnime from "../../schema/Animation/anime.json";
 import { VrmAnimation, Key } from "../../schema/Animation/RootObject";
 

@@ -4,8 +4,8 @@ import { GLTF, Scene, AnimationClip } from "three";
 import GLTFLoader from "three-gltf-loader";
 import OrbitControls from "three-orbitcontrols";
 import { Vrm } from "../../schema/vrm.schema";
-import VRMLoader from "../react-vrm/vrm/VRMLoader";
-import FBXLoader from "../react-vrm/fbx/FBXLoader";
+import VRMLoader from "../ts-vrm/vrm/VRMLoader";
+import FBXLoader from "../ts-vrm/fbx/FBXLoader";
 import born from "../../schema/born.json";
 
 // 幅、高さ取得

@@ -4,7 +4,7 @@ import { Vector3, MeshLambertMaterialParameters, MeshStandardMaterialParameters,
 import OrbitControls from "three-orbitcontrols";
 import CANNON from "cannon";
 import Stats from "stats-js";
-import WebVRM from "../../react-vrm/vrm/WebVRM";
+import WebVRM from "../vrm/WebVRM";
 import { SphereParam } from "./VRMSceneInterface";
 import CannonScene from "./CannonScene";
 import { BoxParam } from "./VRMSceneInterface";

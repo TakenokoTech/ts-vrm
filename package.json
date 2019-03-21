@@ -1,5 +1,5 @@
 {
-    "name": "react-vrm",
+    "name": "ts-vrm",
     "version": "1.0.0",
     "description": "",
     "main": "index.js",
@@ -15,14 +15,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/TakenokoTech/react-vrm.git"
+        "url": "git+https://github.com/TakenokoTech/ts-vrm.git"
     },
     "author": "",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/TakenokoTech/react-vrm/issues"
+        "url": "https://github.com/TakenokoTech/ts-vrm/issues"
     },
-    "homepage": "https://github.com/TakenokoTech/react-vrm#readme",
+    "homepage": "https://github.com/TakenokoTech/ts-vrm#readme",
     "devDependencies": {
         "@babel/cli": "^7.2.0",
         "@babel/core": "^7.2.0",
