@@ -2,6 +2,7 @@ import _ from "lodash";
 import * as THREE from "three";
 import { Object3D, Scene, Material, MeshBasicMaterial } from "three";
 import { Vrm } from "../../schema/UniVRM/vrm.schema";
+import boneJson from "../../../schema/bone.json";
 import BlendShape from "./BlendShape";
 import VRMLoader from "./VRMLoader";
 import Skeleton from "./Skeleton";
@@ -14,7 +15,7 @@ export default class WebVRM {
     private vrm: Vrm | undefined;
     private skeleton: Skeleton;
     private blendShape: BlendShape;
-    private isReady = false;
+    private humanoid: any = {};
 
     constructor(avatarFileURL: string, callBackReady = () => {}) {
         this.loadVRM(avatarFileURL, callBackReady);
@@ -28,8 +29,13 @@ export default class WebVRM {
     get boneKeys() {
         return this.skeleton.getKeysIterator();
     }
+
     get expressionKeys() {
         return this.blendShape.getKeysIterator();
+    }
+
+    get humanoidBone() {
+        return this.humanoid;
     }
 
     public setBoneRotation(key: string, angle: number) {
@@ -49,10 +55,10 @@ export default class WebVRM {
             this.vrm = vrm;
             this.skeleton = new Skeleton(vrm.scene, vrm.parser.json);
             this.blendShape = new BlendShape(vrm.scene, vrm.parser.json);
-            this.isReady = true;
             vrm.scene.castShadow = true;
             // targetScene.add(vrm.scene);
             // vrm.scene.traverse(this.rigid);
+            this.attachHumanoidBone();
             callBackReady();
         });
     }
@@ -84,6 +90,16 @@ export default class WebVRM {
             object.material.forEach((m, index) => (object.material[index] = createMaterial(m)));
         } else {
             object.material = createMaterial(object.material);
+        }
+    }
+
+    private attachHumanoidBone() {
+        for (const [i, bone] of this.vrm.userData.gltfExtensions.VRM.humanoid.humanBones.entries()) {
+            for (const [j, node] of this.vrm.parser.json.nodes.entries()) {
+                if (bone.node == j) {
+                    this.humanoidBone[boneJson[bone.bone]] = node.name;
+                }
+            }
         }
     }
 }

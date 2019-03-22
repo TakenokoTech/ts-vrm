@@ -53,7 +53,7 @@ export class WebSocketReciver {
 
         const animation: VrmAnimation[] = JSON.parse(this.messageData).vrmAnimation;
         for (let ani of animation) {
-            const name = this.convertBone(this.manager.vrmScene.avatar, ani.name);
+            const name = this.manager.vrmScene.avatar.humanoidBone[ani.name];
             const bone = this.avaterBones[name];
             const key = ani.keys[ani.keys.length - 1];
             if (!bone || !key) continue;
@@ -76,6 +76,7 @@ export class WebSocketReciver {
         }
         for (const bone of bones) {
             if (String(bone.Index) == name) {
+                console.log(this.manager.vrmScene.avatar.humanoidBone[name], bone.Name.replace(".", ""));
                 return bone.Name.replace(".", "");
             }
         }
