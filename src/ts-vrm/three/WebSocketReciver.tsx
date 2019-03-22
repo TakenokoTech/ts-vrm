@@ -60,26 +60,4 @@ export class WebSocketReciver {
             this.avaterBones[name].quaternion.set(-key.rot[0], -key.rot[1], key.rot[2], key.rot[3]);
         }
     }
-
-    convertBone(avatar: WebVRM, name: string): string {
-        let bones = [];
-        switch (this.manager.modelName) {
-            case "alicia":
-                bones = aliciaBone.Bones;
-                break;
-            case "nokoko":
-                bones = nokokoBone.Bones;
-                break;
-            case "panda":
-                bones = pandaBone.Bones;
-                break;
-        }
-        for (const bone of bones) {
-            if (String(bone.Index) == name) {
-                console.log(this.manager.vrmScene.avatar.humanoidBone[name], bone.Name.replace(".", ""));
-                return bone.Name.replace(".", "");
-            }
-        }
-        return "";
-    }
 }
