@@ -1,5 +1,5 @@
 import { VRMLoaderManager } from "./VRMLoaderSceneInterface";
-import { VrmAnimation } from "../../../schema/Animation/RootObject ";
+import { VrmAnimation } from "../../../schema/Animation/RootObject";
 import WebVRM from "../vrm/WebVRM";
 
 import nokokoBone from "../../../static/vrm/nokoko_bone.json";
