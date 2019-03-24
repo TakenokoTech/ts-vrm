@@ -13,6 +13,10 @@ ts-vrm is sample code for loading VRM File.
 -   [three.js](https://threejs.org/)
 -   [Cannon.js](http://www.cannonjs.org/)
 
+## UML
+
+![uml](./.github/uml.png)
+
 <p align="center">
   <br>
   <a href=""><strong>Takenoko Tech.</strong></a>
