@@ -7,10 +7,10 @@ export class HierarchyScene {
 
     constructor(manager: HierarchyManager) {
         this.manager = manager;
-        this.render = this.render.bind(this);
+        this.onLoad = this.onLoad.bind(this);
     }
 
-    render(manager: HierarchyManager) {
+    onLoad(manager: HierarchyManager) {
         this.manager = manager;
         // console.log(this.manager.vrmScene.scene);
         while (this.manager.hierarchyDom.firstChild) {
@@ -29,7 +29,7 @@ export class HierarchyScene {
                     //obj.visible = !obj.visible;
                     //button.className = (obj.visible ? "btn btn-light" : "btn btn-outline-light") + " object3d";
                     this.manager.selectNumber = index;
-                    this.manager.render();
+                    this.manager.onLoad();
                 });
                 div.appendChild(button);
             }

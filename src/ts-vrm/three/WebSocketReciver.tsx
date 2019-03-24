@@ -14,10 +14,10 @@ export class WebSocketReciver {
 
     constructor(manager: VRMLoaderManager) {
         this.manager = manager;
-        this.render = this.render.bind(this);
+        this.onLoad = this.onLoad.bind(this);
     }
 
-    render(manager: VRMLoaderManager) {
+    onLoad(manager: VRMLoaderManager) {
         this.manager = manager;
         this.realtimeAnimeWebsocket();
         this.attachBone(this.manager.vrmScene.avatar);

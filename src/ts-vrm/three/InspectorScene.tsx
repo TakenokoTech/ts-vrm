@@ -2,7 +2,7 @@ import _ from "lodash";
 import * as THREE from "three";
 import { InspectorManager } from "./InspectorSceneInterface";
 import { Object3D, CircleBufferGeometry, Color } from "three";
-import { Material } from "cannon";
+import CANNON from "cannon";
 import { MultipleInputsCol, MultipleSelectCol } from "./InspectorSceneInterface";
 import { GeometryType, createGeometry, geometryParam, BoxGeometryParam, CircleGeometryParam, SphereGeometryParam } from "./InspectorSceneInterface";
 import { paramList } from "./InspectorSceneInterface";
@@ -10,13 +10,14 @@ import { MaterialType, materialParam, createMaterial, castMaterial } from "./Ins
 
 export class InspectorScene {
     private manager: InspectorManager;
+    private target: { [key: string]: THREE.Mesh } = {};
 
     constructor(manager: InspectorManager) {
         this.manager = manager;
-        this.render = this.render.bind(this);
+        this.onLoad = this.onLoad.bind(this);
     }
 
-    render(manager: InspectorManager) {
+    onLoad(manager: InspectorManager) {
         this.manager = manager;
         // console.log(this.manager.vrmScene.scene);
 
@@ -54,6 +55,46 @@ export class InspectorScene {
             }
         }
         this.manager.inspectorDom.appendChild(div);
+    }
+
+    create(i: string) {
+        for (const obj of this.manager.vrmScene.scene.children) if (obj.name == "col_" + i) return;
+        const material = { color: 0xdddddd, wireframe: true };
+        const ball = new THREE.Mesh(new THREE.SphereGeometry(8, 16, 16), new THREE.MeshLambertMaterial(material));
+        ball.name = "col_" + i;
+        ball.position.set(0, 0, 0);
+        ball.castShadow = true;
+        this.target[i] = ball;
+        this.manager.vrmScene.scene.add(ball);
+    }
+
+    updateFrame() {
+        const obj: Object3D = this.manager.vrmScene.scene.children[this.manager.selectNumber];
+        for (const b of this.manager.cannonScene.world.bodies) {
+            for (const i in b.shapes) {
+                this.create(b.id);
+                this.target[b.id].position.set(b.position.x, b.position.y, b.position.z);
+                this.target[b.id].quaternion.set(b.quaternion.x, b.quaternion.y, b.quaternion.z, b.quaternion.w);
+                switch (true) {
+                    case b.shapes[i] instanceof CANNON.Box: {
+                        const par: any = { width: b.shapes[i].halfExtents.x * 2 + 4, height: b.shapes[i].halfExtents.y * 2 + 4, depth: b.shapes[i].halfExtents.z * 2 + 4 };
+                        const tempParam = (this.target[b.id].geometry as THREE.BoxGeometry).parameters;
+                        if (par.width != tempParam.width || par.height != tempParam.height || par.depth != tempParam.depth) {
+                            this.target[b.id].geometry = createGeometry(GeometryType.BoxGeometry, par);
+                        }
+                        break;
+                    }
+                    case b.shapes[i] instanceof CANNON.Sphere: {
+                        const par: any = { radius: b.shapes[i].radius + 1, widthSegments: 16, heightSegments: 16 };
+                        const tempParam = (this.target[b.id].geometry as THREE.SphereGeometry).parameters;
+                        if (par.radius != tempParam.radius || par.widthSegments != tempParam.widthSegments || par.heightSegments != tempParam.heightSegments) {
+                            this.target[b.id].geometry = createGeometry(GeometryType.SphereGeometry, par);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     createMultipleInputs(title: string = "", colList: MultipleInputsCol[], selectList: MultipleSelectCol[] = []): Element {
@@ -279,7 +320,6 @@ export class InspectorScene {
             ])
         );
 
-        console.log(castMaterial(obj.material).wireframe);
         div.appendChild(
             this.createMultipleInputs(
                 "Mat.wireframe",

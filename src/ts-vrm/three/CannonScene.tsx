@@ -1,6 +1,8 @@
 import CANNON, { IContactMaterialOptions, Shape, Vec3 } from "cannon";
 import { ShapeType } from "./CannonSceneInterface";
 import { CannonParam } from "./CannonSceneInterface";
+import { Vector3, Quaternion } from "three";
+import { DomManager } from "..";
 
 interface Rigitbody {
     enable: boolean;
@@ -13,11 +15,20 @@ interface BaseCannonScene {
     addRigidbody(param: CannonParam, target: THREE.Object3D): void;
 }
 
+const contactParam = {
+    friction: 0.001, //摩擦係数
+    restitution: 0 // 反発係数
+    // contactEquationRelaxation: 3, // 接触式の緩和性
+    // contactEquationStiffness: 10000000, // 接触式の剛性
+    // frictionEquationRelaxation: 3, // 摩擦式の剛性
+    // frictionEquationStiffness: 10000000, // 摩擦式の緩和性
+};
+
 export default class CannonScene implements BaseCannonScene {
     public world: CANNON.World;
     private map: { [index: string]: Rigitbody } = {};
 
-    constructor() {
+    constructor(private domManager: DomManager) {
         this.world = this.createCannon();
     }
 
@@ -25,17 +36,8 @@ export default class CannonScene implements BaseCannonScene {
         Object.keys(this.map).forEach(key1 => {
             this.world.addBody(this.map[key1].body);
             Object.keys(this.map).forEach(key2 => {
-                if (key1 == key2) {
-                    return;
-                }
-                this.addContact(this.map[key1].body.material, this.map[key2].body.material, {
-                    friction: 0.001, //摩擦係数
-                    restitution: 0 // 反発係数
-                    // contactEquationRelaxation: 3, // 接触式の緩和性
-                    // contactEquationStiffness: 10000000, // 接触式の剛性
-                    // frictionEquationRelaxation: 3, // 摩擦式の剛性
-                    // frictionEquationStiffness: 10000000, // 摩擦式の緩和性
-                });
+                if (key1 == key2) return;
+                this.addContact(this.map[key1].body.material, this.map[key2].body.material, contactParam);
             });
         });
     }
@@ -49,8 +51,8 @@ export default class CannonScene implements BaseCannonScene {
         this.map[body.material.name] = { enable: enable, body: body, target: target };
     }
 
-    render() {
-        this.world.step(1 / 10);
+    updateFrame() {
+        this.world.step(0.16);
         Object.keys(this.map).forEach(key => {
             if (!this.map[key].enable) {
                 return;
@@ -59,9 +61,9 @@ export default class CannonScene implements BaseCannonScene {
                 this.map[key].target.visible = false;
                 return;
             }
-            // console.log(key, this.map[key].body.position, this.map[key].body.quaternion);
-            this.map[key].target.position.copy(this.map[key].body.position);
-            this.map[key].target.quaternion.copy(this.map[key].body.quaternion);
+            const t = this.trance(this.map[key].body.position, this.map[key].body.quaternion);
+            this.map[key].target.position.copy(t[0]);
+            this.map[key].target.quaternion.copy(t[1]);
         });
     }
 
@@ -77,5 +79,9 @@ export default class CannonScene implements BaseCannonScene {
     private addContact(m1: CANNON.Material, m2: CANNON.Material, options?: CANNON.IContactMaterialOptions) {
         var mat3 = new CANNON.ContactMaterial(m1, m2, options);
         this.world.addContactMaterial(mat3);
+    }
+
+    private trance(vec: CANNON.Vec3, row: CANNON.Quaternion): [THREE.Vector3, THREE.Quaternion] {
+        return [new Vector3(vec.x, vec.y, vec.z), new Quaternion(row.x, row.y, row.z, row.w)];
     }
 }

@@ -36,11 +36,10 @@ export default class VRMScene implements BaseThreeScene {
     public controls: OrbitControls;
     public stats: Stats;
 
-    private cannon: CannonScene = new CannonScene();
-
     private width = 0;
     private height = 0;
     private avaterBones: { [key: string]: THREE.Bone } = {};
+    private avaterRigit: { [key: string]: THREE.Object3D } = {};
 
     private ballCount: number = 0;
     private objList: THREE.Object3D[] = [];
@@ -163,7 +162,7 @@ export default class VRMScene implements BaseThreeScene {
         meshFloor.position.set(param.position.x, param.position.y, param.position.z);
         meshFloor.receiveShadow = true;
         const cannon = new CannonParam(param.name, 0, param.position, param.quaternion, new CANNON.Box(new CANNON.Vec3(param.width / 2, param.height / 2, param.depth / 2)));
-        this.cannon.addRigidbody(cannon, meshFloor, false);
+        this.domManager.cannonScene.addRigidbody(cannon, meshFloor, false);
         return meshFloor;
     }
 
@@ -174,7 +173,7 @@ export default class VRMScene implements BaseThreeScene {
         ball.position.set(param.position.x, param.position.y, param.position.z);
         ball.castShadow = true;
         const cannon = new CannonParam(param.name, 1, param.position, new Quaternion(), new CANNON.Sphere(param.radius));
-        this.cannon.addRigidbody(cannon, ball);
+        this.domManager.cannonScene.addRigidbody(cannon, ball);
         return ball;
     }
 
@@ -207,16 +206,23 @@ export default class VRMScene implements BaseThreeScene {
             if (object.isBone) {
                 this.avaterBones[object.name] = object;
             }
-            if (object.position.y > 0.5) {
-                // console.log(object.name, object.position);
+            if (object.name == "Body") {
                 const material = { color: 0xff0000, wireframe: true };
-                const ball = new THREE.Mesh(new THREE.SphereGeometry(0.6 * 100, 8, 8), new THREE.MeshLambertMaterial(material));
-                ball.position.set(object.position.x * 100, object.position.y * 100, object.position.z * 100);
-                ball.castShadow = true;
-                // this.scene.add(ball);
-                const cannon = new CannonParam(object.name, 0, ball.position, new Quaternion(), new CANNON.Sphere(0.6 * 100));
-                this.cannon.addRigidbody(cannon, ball /*this.avatar.scene*/);
+                for (let i = 0; i < object.geometry.attributes.position.array.length; i += 90) {
+                    const x = object.geometry.attributes.position.array[i + 0];
+                    const y = object.geometry.attributes.position.array[i + 1];
+                    const z = object.geometry.attributes.position.array[i + 2];
+                    if (!this.avaterRigit[i]) {
+                        this.avaterRigit[i] = new THREE.Mesh(object.geometry, new THREE.MeshLambertMaterial(material));
+                    }
+                    this.avaterRigit[i].position.set(x * 100, y * 100, z * 100);
+                }
             }
+        });
+
+        Object.keys(this.avaterRigit).forEach(key => {
+            const cannon = new CannonParam("VRM_" + key, 0, this.avaterRigit[key].position, new Quaternion(), new CANNON.Sphere(0.001 * 100));
+            //this.domManager.cannonScene.addRigidbody(cannon, this.avaterRigit[key]);
         });
 
         this.avatar.scene.scale.x = 100;
@@ -224,15 +230,14 @@ export default class VRMScene implements BaseThreeScene {
         this.avatar.scene.scale.z = 100;
         this.scene.add(this.avatar.scene);
 
-        this.cannon.addScene();
-        this.domManager.render();
+        this.domManager.cannonScene.addScene();
+        this.domManager.onLoad();
     }
 
     render() {
         requestAnimationFrame(this.render.bind(this));
         this.renderer.clear();
         this.renderer.render(this.scene, this.camera);
-        this.cannon.render();
         this.stats.update();
         this.domManager.updateFrame();
     }

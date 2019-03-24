@@ -5,6 +5,7 @@ import Draggable from "../dom/Draggable";
 import { InspectorScene } from "./three/InspectorScene";
 import { VRMLoaderScene } from "./three/VRMLoaderScene";
 import { WebSocketReciver } from "./three/WebSocketReciver";
+import CannonScene from "./three/CannonScene";
 
 export interface DomManager {
     stageDom: HTMLElement;
@@ -13,6 +14,7 @@ export interface DomManager {
     vrmloaderDom: HTMLElement;
     statDom: HTMLElement;
     vrmScene: VRMScene;
+    cannonScene: CannonScene;
     hierarchyScene: HierarchyScene;
     inspectorScene: InspectorScene;
     vrmloaderScene: VRMLoaderScene;
@@ -20,7 +22,7 @@ export interface DomManager {
     modelName: string;
     modelURL: string;
     selectNumber: number;
-    render: () => void;
+    onLoad: () => void;
     updateFrame: () => void;
     loadVRM: null | (() => void);
 }
@@ -29,7 +31,7 @@ class main {
     private domManager: DomManager;
 
     constructor() {
-        this.render = this.render.bind(this);
+        this.onLoad = this.onLoad.bind(this);
         this.updateFrame = this.updateFrame.bind(this);
 
         const stage: HTMLElement = document.getElementById("stage") || new HTMLElement();
@@ -45,26 +47,28 @@ class main {
             vrmloaderDom: vrmloader,
             statDom: stat,
             vrmScene: null,
+            cannonScene: null,
             hierarchyScene: null,
             inspectorScene: null,
             vrmloaderScene: null,
             webSocketReciver: null,
             modelName: "",
             modelURL: "",
-            render: this.render,
+            onLoad: this.onLoad,
             updateFrame: this.updateFrame,
             loadVRM: null,
             selectNumber: 0
         };
         this.domManager.modelName = `nokoko`;
         this.domManager.modelURL = `../../static/vrm/nokoko.vrm`;
+        this.domManager.cannonScene = new CannonScene(this.domManager);
         this.domManager.vrmScene = new VRMScene(this.domManager);
         this.domManager.hierarchyScene = new HierarchyScene(this.domManager);
         this.domManager.inspectorScene = new InspectorScene(this.domManager);
         this.domManager.vrmloaderScene = new VRMLoaderScene(this.domManager);
         this.domManager.webSocketReciver = new WebSocketReciver(this.domManager);
 
-        this.render();
+        this.onLoad();
         this.draggable();
     }
 
@@ -82,16 +86,18 @@ class main {
         vrmloader_p && vrmloader_h && new Draggable(vrmloader_p, vrmloader_h);
     }
 
-    render() {
+    onLoad() {
         // vrmScene.render();
-        this.domManager.hierarchyScene.render(this.domManager);
-        this.domManager.inspectorScene.render(this.domManager);
-        this.domManager.vrmloaderScene.render(this.domManager);
-        this.domManager.webSocketReciver.render(this.domManager);
+        this.domManager.hierarchyScene.onLoad(this.domManager);
+        this.domManager.inspectorScene.onLoad(this.domManager);
+        this.domManager.vrmloaderScene.onLoad(this.domManager);
+        this.domManager.webSocketReciver.onLoad(this.domManager);
     }
 
     updateFrame() {
         this.domManager.webSocketReciver && this.domManager.webSocketReciver.updateFrame();
+        this.domManager.inspectorScene && this.domManager.inspectorScene.updateFrame();
+        this.domManager.cannonScene && this.domManager.cannonScene.updateFrame();
     }
 }
 

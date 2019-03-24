@@ -8,10 +8,10 @@ export class VRMLoaderScene {
 
     constructor(manager: VRMLoaderManager) {
         this.manager = manager;
-        this.render = this.render.bind(this);
+        this.onLoad = this.onLoad.bind(this);
     }
 
-    render(manager: VRMLoaderManager) {
+    onLoad(manager: VRMLoaderManager) {
         this.manager = manager;
         // console.log(this.manager.vrmScene.scene);
         while (this.manager.vrmloaderDom.firstChild) {
