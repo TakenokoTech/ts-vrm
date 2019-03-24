@@ -61,7 +61,6 @@ export default class VRMScene implements BaseThreeScene {
         this.objList.push(this.createFloar(new BoxParam("floar3", 100, 600, 900, new Vector3(-400, 200, 0), new Quaternion(0, 0, 0, 1), false)));
         this.objList.push(this.createFloar(new BoxParam("floar4", 900, 600, 100, new Vector3(0, 200, -400), new Quaternion(0, 0, 0, 1), true)));
 
-        this.ball = this.createBall(new SphereParam("ball", 64, new Vector3(64, 128, 64)));
         this.domManager.stageDom.appendChild(this.renderer.domElement);
         this.domManager.loadVRM = this.loadVRM;
 
