@@ -220,8 +220,8 @@ export default class VRMScene implements BaseThreeScene {
         });
 
         Object.keys(this.avaterRigit).forEach(key => {
-            const cannon = new CannonParam("VRM_" + key, 0, this.avaterRigit[key].position, new Quaternion(), new CANNON.Sphere(0.001 * 100));
-            //this.domManager.cannonScene.addRigidbody(cannon, this.avaterRigit[key]);
+            const cannon = new CannonParam("VRM_" + key, 0, this.avaterRigit[key].position, new Quaternion(), new CANNON.Sphere(0));
+            this.domManager.cannonScene.addRigidbody(cannon, this.avaterRigit[key]);
         });
 
         this.avatar.scene.scale.x = 100;

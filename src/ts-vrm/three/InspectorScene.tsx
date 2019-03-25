@@ -69,6 +69,7 @@ export class InspectorScene {
     }
 
     updateFrame() {
+        return;
         const obj: Object3D = this.manager.vrmScene.scene.children[this.manager.selectNumber];
         for (const b of this.manager.cannonScene.world.bodies) {
             for (const i in b.shapes) {
@@ -85,7 +86,7 @@ export class InspectorScene {
                         break;
                     }
                     case b.shapes[i] instanceof CANNON.Sphere: {
-                        const par: any = { radius: b.shapes[i].radius + 1, widthSegments: 16, heightSegments: 16 };
+                        const par: any = { radius: b.shapes[i].radius + 2, widthSegments: 8, heightSegments: 8 };
                         const tempParam = (this.target[b.id].geometry as THREE.SphereGeometry).parameters;
                         if (par.radius != tempParam.radius || par.widthSegments != tempParam.widthSegments || par.heightSegments != tempParam.heightSegments) {
                             this.target[b.id].geometry = createGeometry(GeometryType.SphereGeometry, par);

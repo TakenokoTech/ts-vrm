@@ -11,7 +11,8 @@
         "build": "npm run build:types && npm run build:js",
         "build:types": "tsc --emitDeclarationOnly",
         "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline",
-        "server": "tsc --pretty ./websocket/server.ts --outDir dist && node ./dist/server.js"
+        "server": "tsc --pretty ./websocket/server.ts --outDir dist && node ./dist/server.js",
+        "deploy": "set NODE_ENV=production && webpack && gh-pages -d build"
     },
     "repository": {
         "type": "git",
@@ -32,6 +33,7 @@
         "@babel/preset-typescript": "^7.1.0",
         "@types/ws": "^6.0.1",
         "babel-loader": "^8.0.4",
+        "gh-pages": "^2.0.1",
         "typescript": "^3.2.2",
         "webpack": "^4.29.3",
         "webpack-cli": "^3.2.3",

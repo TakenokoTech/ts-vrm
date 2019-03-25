@@ -6,5 +6,13 @@
         "*-lock.json/**": true,
         "LICENSE": true
     },
-    "prettier.printWidth": 300
+    "prettier.printWidth": 300,
+    "python.linting.flake8Enabled": true,
+    "python.formatting.provider": "autopep8",
+    "python.linting.pylintEnabled": true,
+    "editor.formatOnSave": true,
+    "python.unitTest.unittestArgs": ["-v", "-b", "-s", "./script", "-p", "test_*.py"],
+    "python.unitTest.pyTestEnabled": true,
+    "python.unitTest.nosetestsEnabled": false,
+    "python.unitTest.unittestEnabled": true
 }

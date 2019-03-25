@@ -27,6 +27,25 @@ export interface DomManager {
     loadVRM: null | (() => void);
 }
 
+const avater = [
+    {
+        name: "Victoria_Rubin",
+        vrm: "vrm/Victoria_Rubin.vrm"
+    }
+    // {
+    //     name: "nokoko",
+    //     vrm: "vrm/nokoko.vrm"
+    // },
+    // {
+    //     name: "panda",
+    //     vrm: "vrm/panda.vrm"
+    // },
+    // {
+    //     name: "alicia",
+    //     vrm: "vrm/AliciaSolid.vrm"
+    // }
+];
+
 class main {
     private domManager: DomManager;
 
@@ -59,13 +78,13 @@ class main {
             loadVRM: null,
             selectNumber: 0
         };
-        this.domManager.modelName = `nokoko`;
-        this.domManager.modelURL = `../../static/vrm/nokoko.vrm`;
+        this.domManager.modelName = avater[0].name;
+        this.domManager.modelURL = avater[0].vrm;
         this.domManager.cannonScene = new CannonScene(this.domManager);
         this.domManager.vrmScene = new VRMScene(this.domManager);
         this.domManager.hierarchyScene = new HierarchyScene(this.domManager);
         this.domManager.inspectorScene = new InspectorScene(this.domManager);
-        this.domManager.vrmloaderScene = new VRMLoaderScene(this.domManager);
+        this.domManager.vrmloaderScene = new VRMLoaderScene(this.domManager, avater);
         this.domManager.webSocketReciver = new WebSocketReciver(this.domManager);
 
         this.onLoad();

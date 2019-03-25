@@ -6,7 +6,7 @@ import { VRMLoaderManager } from "./VRMLoaderSceneInterface";
 export class VRMLoaderScene {
     private manager: VRMLoaderManager;
 
-    constructor(manager: VRMLoaderManager) {
+    constructor(manager: VRMLoaderManager, private avater: { name: string; vrm: string }[]) {
         this.manager = manager;
         this.onLoad = this.onLoad.bind(this);
     }
@@ -17,9 +17,9 @@ export class VRMLoaderScene {
         while (this.manager.vrmloaderDom.firstChild) {
             this.manager.vrmloaderDom.removeChild(this.manager.vrmloaderDom.firstChild);
         }
-        this.manager.vrmloaderDom.appendChild(this.createUrlForm("http://127.0.0.1:8887/static/vrm/nokoko.vrm", "nokoko"));
-        this.manager.vrmloaderDom.appendChild(this.createUrlForm("http://127.0.0.1:8887/static/vrm/panda.vrm", "panda"));
-        this.manager.vrmloaderDom.appendChild(this.createUrlForm("http://127.0.0.1:8887/static/vrm/AliciaSolid.vrm", "alicia"));
+        for (const av of this.avater) {
+            this.manager.vrmloaderDom.appendChild(this.createUrlForm(av.vrm, av.name));
+        }
     }
 
     createUrlForm(defaultURL = "", name = "") {
