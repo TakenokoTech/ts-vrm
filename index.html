@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title></title>
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="" />
+        <link rel="shortcut icon" href="./favicon.ico" />
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="./style.css" />
+        <style></style>
+    </head>
+    <body>
+        <div id="stat"></div>
+
+        <div id="stage" class="stage"></div>
+
+        <div id="hierarchy" class="hierarchy">
+            <div id="hierarchy_header" class="header">
+                <div id="hierarchy_title" class="header_title">Hierarchy</div>
+                <div id="hierarchy_minimize" class="header_minimize"><i class="material-icons">minimize</i></div>
+                <div id="hierarchy_close" class="header_close"><i class="material-icons">close</i></div>
+            </div>
+            <div id="hierarchy_contents" class="contents"></div>
+        </div>
+
+        <div id="inspector" class="inspector">
+            <div id="inspector_header" class="header">
+                <div id="inspector_title" class="header_title">Inspector</div>
+                <div id="inspector_minimize" class="header_minimize"><i class="material-icons">minimize</i></div>
+                <div id="inspector_close" class="header_close"><i class="material-icons">close</i></div>
+            </div>
+            <div id="inspector_contents" class="contents"></div>
+        </div>
+
+        <div id="vrmloader" class="vrmloader">
+            <div id="vrmloader_header" class="header">
+                <div id="vrmloader_title" class="header_title">VRM Loader</div>
+                <div id="vrmloader_minimize" class="header_minimize"><i class="material-icons">minimize</i></div>
+                <div id="vrmloader_close" class="header_close"><i class="material-icons">close</i></div>
+            </div>
+            <div id="vrmloader_contents" class="contents"></div>
+        </div>
+
+        <script src="./vrm.bundle.js"></script>
+    </body>
+</html>

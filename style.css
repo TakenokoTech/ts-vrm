@@ -1,0 +1,121 @@
+body {
+    /* font-family: Monospace; */
+    background-color: #b8e6ff /*rgb(0, 255, 0)*/;
+    color: #fff;
+    margin: 0px;
+    overflow: hidden;
+}
+
+#stat {
+    z-index: 200;
+    position: absolute;
+}
+
+/* 
+インスペクタ・ヒエラルキー共通
+*/
+
+.header {
+    width: 100%;
+    height: 32px;
+    padding-top: 4px;
+    background-color: black;
+    user-select: none;
+    cursor: move;
+}
+
+.header .header_title {
+    width: 160px;
+    padding: 0 16px;
+    float: inline-start;
+}
+
+.header .header_close {
+    position: absolute;
+    right: 8px;
+    user-select: none;
+    cursor: pointer;
+}
+
+.header .header_minimize {
+    position: absolute;
+    right: 40px;
+    user-select: none;
+    cursor: pointer;
+}
+
+.contents {
+    padding: 8px 16px;
+    overflow: scroll;
+    overflow-x: hidden;
+    max-height: 450px;
+}
+
+.contents .object3d {
+    width: 200px;
+}
+
+.contents div:last-child {
+    padding-bottom: 16px;
+}
+
+/*
+ヒエラルキー
+*/
+
+#hierarchy {
+    width: 380px;
+    z-index: 200;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    max-width: 400px;
+    background-color: #000c;
+}
+
+#hierarchy .contents button {
+    height: 48px;
+    margin: 4px;
+}
+
+/* 
+インスペクタ
+*/
+
+#inspector {
+    width: 600px;
+    z-index: 200;
+    position: absolute;
+    top: 560px;
+    right: 8px;
+    max-width: 600px;
+    background-color: #000c;
+}
+
+#inspector .inspecter_obj_name {
+    font-size: 1.2em;
+    padding: 4px 0;
+}
+
+#inspector .input-group {
+    padding: 4px 0;
+}
+
+#inspector .input-group-text {
+    width: 128px;
+}
+
+/** 
+VRM
+*/
+
+#vrmloader {
+    width: 600px;
+    z-index: 200;
+    position: absolute;
+    /* bottom: 16px; */
+    top: 560px;
+    left: 8px;
+    max-width: 600px;
+    background-color: #000c;
+}
