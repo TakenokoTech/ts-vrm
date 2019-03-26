@@ -89,6 +89,7 @@ class main {
 
         this.onLoad();
         this.draggable();
+        this.minimize();
     }
 
     private draggable() {
@@ -117,6 +118,24 @@ class main {
         this.domManager.webSocketReciver && this.domManager.webSocketReciver.updateFrame();
         this.domManager.inspectorScene && this.domManager.inspectorScene.updateFrame();
         this.domManager.cannonScene && this.domManager.cannonScene.updateFrame();
+    }
+
+    private minimize() {
+        const hierarchy_minimize: HTMLElement = document.getElementById("hierarchy_minimize") || new HTMLElement();
+        hierarchy_minimize.onclick = () => {
+            const inspector: HTMLElement = document.getElementById("hierarchy") || new HTMLElement();
+            inspector.classList.toggle("mini");
+        };
+        const inspector_minimize: HTMLElement = document.getElementById("inspector_minimize") || new HTMLElement();
+        inspector_minimize.onclick = () => {
+            const inspector: HTMLElement = document.getElementById("inspector") || new HTMLElement();
+            inspector.classList.toggle("mini");
+        };
+        const vrmloader_minimize: HTMLElement = document.getElementById("vrmloader_minimize") || new HTMLElement();
+        vrmloader_minimize.onclick = () => {
+            const inspector: HTMLElement = document.getElementById("vrmloader") || new HTMLElement();
+            inspector.classList.toggle("mini");
+        };
     }
 }
 

@@ -1,4 +1,5 @@
 var path = require("path");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 var development = {
     entry: {
@@ -46,7 +47,8 @@ var production = {
                 loader: "babel-loader"
             }
         ]
-    }
+    },
+    plugins: [new CopyWebpackPlugin([{ from: ".", to: ".", ignore: ["!*.css"] }], { context: "static/css" })]
 };
 
 if ((process.env.NODE_ENV || "").trim() != "production") {
