@@ -15,7 +15,7 @@ ts-vrm is sample code for loading VRM File.
 
 ## UML
 
-![uml](./.github/uml.png)
+![uml](./.github/uml_1.png)
 
 <p align="center">
   <br>
