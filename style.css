@@ -59,6 +59,14 @@ body {
     padding-bottom: 16px;
 }
 
+.mini {
+    width: 240px !important;
+}
+
+.mini .contents {
+    display: none;
+}
+
 /*
 ヒエラルキー
 */
@@ -86,8 +94,8 @@ body {
     width: 600px;
     z-index: 200;
     position: absolute;
-    top: 560px;
-    right: 8px;
+    top: 8px;
+    right: 256px;
     max-width: 600px;
     background-color: #000c;
 }
@@ -114,8 +122,8 @@ VRM
     z-index: 200;
     position: absolute;
     /* bottom: 16px; */
-    top: 560px;
-    left: 8px;
+    top: 8px;
+    left: 100px;
     max-width: 600px;
     background-color: #000c;
 }
