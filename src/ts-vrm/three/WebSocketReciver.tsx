@@ -10,11 +10,16 @@ export class WebSocketReciver {
     private manager: VRMLoaderManager;
     private avaterBones: { [key: string]: THREE.Bone } = {};
     private messageData: any = null;
-    private socket: WebSocket = new WebSocket("ws://127.0.0.1:5001");
+    private socket: WebSocket | undefined;
 
     constructor(manager: VRMLoaderManager) {
-        this.manager = manager;
-        this.onLoad = this.onLoad.bind(this);
+        try {
+            this.manager = manager;
+            this.onLoad = this.onLoad.bind(this);
+            this.socket = new WebSocket("ws://127.0.0.1:5001");
+        } catch (e) {
+            console.warn(e);
+        }
     }
 
     onLoad(manager: VRMLoaderManager) {
@@ -35,12 +40,14 @@ export class WebSocketReciver {
     }
 
     realtimeAnimeWebsocket() {
-        this.socket.onopen = (event: Event) => {
+        if (!this.socket) return;
+        const socket = this.socket;
+        socket.onopen = (event: Event) => {
             console.log("websocket open");
-            this.socket.onmessage = message => {
+            socket.onmessage = message => {
                 this.messageData = message.data;
             };
-            this.socket.onclose = () => {
+            socket.onclose = () => {
                 console.log("websocket close");
             };
         };
