@@ -41,7 +41,7 @@
         "typescript": "^3.2.2",
         "webpack": "^4.29.3",
         "webpack-cli": "^3.2.3",
-        "ws": "^6.1.4"
+        "ws": "^7.4.6"
     },
     "dependencies": {
         "@types/cannon": "^0.1.3",
